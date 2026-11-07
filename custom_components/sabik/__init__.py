@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
-from homeassistant.core import HomeAssistant
+from homeassistant.const import EVENT_COMPONENT_LOADED
+from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr
+from homeassistant.setup import EventComponentLoaded
 
 from . import modbus
 from .const import PLATFORMS
 from .coordinator import SabikConfigEntry, SabikCoordinator, settings_from_entry
 from .entity import device_info
+from .migration import MQTT_DOMAIN, async_check_migration, async_stop_monitor
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -30,6 +33,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: SabikConfigEntry) -> boo
     except BaseException:
         await client.async_close()
         raise
+
+    entry.async_on_unload(lambda: async_stop_monitor(hass, entry.entry_id))
+    await async_check_migration(hass, entry)
+
+    @callback
+    def _is_mqtt(data: EventComponentLoaded) -> bool:
+        return data["component"] == MQTT_DOMAIN
+
+    @callback
+    def _mqtt_loaded(event: Event[EventComponentLoaded]) -> None:
+        entry.async_create_task(hass, async_check_migration(hass, entry))
+
+    # The issue also needs raising when MQTT sets up after us.
+    entry.async_on_unload(
+        hass.bus.async_listen(EVENT_COMPONENT_LOADED, _mqtt_loaded, event_filter=_is_mqtt)
+    )
     return True
 
 

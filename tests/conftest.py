@@ -4,8 +4,10 @@ from collections.abc import Awaitable, Callable
 from unittest.mock import patch
 
 import pytest
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.typing import MqttMockHAClient
 
 from custom_components.sabik.const import (
     CONF_BAUDRATE,
@@ -58,3 +60,9 @@ def setup_integration(
         return entry
 
     return _setup
+
+
+@pytest.fixture
+async def mqtt_entry(hass: HomeAssistant, mqtt_mock: MqttMockHAClient) -> ConfigEntry:
+    """A loaded MQTT config entry with a mocked broker."""
+    return hass.config_entries.async_entries("mqtt")[0]

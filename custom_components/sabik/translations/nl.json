@@ -288,5 +288,33 @@
     "summer_outdoor_too_low": {
       "message": "Buitentemperatuur {value} °C is lager dan het minimum voor zomerstand van {minimum} °C"
     }
+  },
+  "issues": {
+    "migrate_mqtt_bridge": {
+      "title": "Overstappen van de Sabik MQTT-bridge",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Stop de Sabik MQTT-bridge",
+            "description": "Home Assistant heeft nog de entiteiten van de oude Ruby/MQTT-bridge. Stop de bridge voordat je overstapt (bijvoorbeeld met `sudo systemctl stop sabik.service`) en zorg dat hij niet opnieuw start.\n\nDe seriële Modbus-bus van de unit staat maar één client toe: zolang de bridge draait, zitten hij en deze integratie elkaars verzoeken in de weg."
+          },
+          "confirm": {
+            "title": "Entiteiten overzetten",
+            "description": "Na bevestigen wordt het volgende gedaan:\n\n1. De MQTT-discoverytopics van de bridge worden gewist, zodat de oude entiteiten niet terugkomen.\n2. De oude MQTT-entiteiten worden verwijderd, ook `climate.sabik_ventilation`, net als de MQTT-apparaten van de bridge.\n3. De nieuwe Sabik-entiteiten krijgen de oude entiteit-ID's, zodat dashboards, automatiseringen en geschiedenis blijven werken."
+          },
+          "done": {
+            "title": "Overstap klaar",
+            "description": "Hernoemde entiteiten: {renamed}\nVerwijderde oude entiteiten: {removed}\nNiet hernoemd, omdat de oude ID nog in gebruik is:\n{skipped}\n\nVolgende stappen:\n- Verwijder de oude Sabik Card uit HACS.\n- Automatiseringen die `climate.sabik_ventilation` gebruikten, moeten `fan.sabik` gebruiken."
+          }
+        },
+        "error": {
+          "bridge_running": "De bridge lijkt nog te draaien: hij heeft de afgelopen 30 seconden zijn status gepubliceerd. Stop hem, wacht een halve minuut en probeer het opnieuw.",
+          "discovery_not_cleared": "MQTT was niet geladen, dus de oude discoverytopics zijn niet gewist. Open deze reparatie opnieuw als de oude entiteiten terugkomen zodra MQTT draait."
+        },
+        "abort": {
+          "entry_not_loaded": "De Sabik-integratie is niet geladen. Zorg dat hij verbinding heeft met de unit en probeer het opnieuw."
+        }
+      }
+    }
   }
 }
