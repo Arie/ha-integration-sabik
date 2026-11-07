@@ -204,6 +204,7 @@ If you used the Ruby bridge ([Arie/sabik](https://github.com/Arie/sabik)) and th
 - Home Assistant's log shows a burst of recorder messages at the moment of migration, like *"Cannot rename statistic_id `sensor.sabik_..._2` … already in use"* and *"Cannot migrate history for entity_id …"*. These are harmless: they mean Home Assistant kept the existing history on the original IDs and dropped the few minutes of `_2` history.
 - **Motor voltage** now reports real volts (0–10 V) instead of the raw 0–100 value, so its long-term statistics show one jump at the switch-over. The card still shows the motors as a percentage, as before.
 - **Fan speed** shows *unknown* when the unit reports a value it doesn't map, instead of pretending it's *medium*.
+- **Entities added by later updates** may get the area in their ID. The migration copies the old device's area to the Sabik device, and Home Assistant puts that area in front of the ID of any entity added to the device later (for example `binary_sensor.zolder_sabik_automatic_bypass` for area *Zolder*). The migrated entities keep their IDs. To match the rest, rename the new entity in its settings (⚙ → Entity ID). The card finds entities by device, so it works either way.
 
 ### If the old MQTT entities come back
 

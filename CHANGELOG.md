@@ -28,5 +28,6 @@ bridge and the separate Sabik Card.
 
 ### Known issues
 - After migration the Home Assistant log shows "Cannot rename statistic_id ... already in use" recorder errors. This is expected and harmless: history stays on the old entity IDs.
+- If the Sabik device has an area (the migration copies the old device's area), entities added by later updates get the area in their entity ID, for example `binary_sensor.zolder_sabik_automatic_bypass`. Rename them by hand if you want them to match.
 
 [0.1.0]: https://github.com/Arie/ha-integration-sabik/releases/tag/v0.1.0
