@@ -41,6 +41,9 @@ class SabikEntity(CoordinatorEntity[SabikCoordinator]):
         HA derives object ids from the instance language when it has native
         ids for it (for example Dutch), which would break the stable ids.
         """
+        # An explicit name (for example None on the main fan) must win.
+        if hasattr(self, "_attr_name"):
+            return super().suggested_object_id
         platform_data = self.platform_data
         if platform_data is not None and self._name_translation_key:
             name = platform_data.default_language_platform_translations.get(

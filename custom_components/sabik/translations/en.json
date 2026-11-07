@@ -203,6 +203,21 @@
         "name": "Supply air sensor fault"
       }
     },
+    "fan": {
+      "ventilation": {
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "low": "Low",
+              "medium": "Medium",
+              "high": "High",
+              "auto": "Auto",
+              "snooze": "Snooze"
+            }
+          }
+        }
+      }
+    },
     "select": {
       "fan_speed": {
         "name": "Fan speed",

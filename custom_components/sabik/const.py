@@ -17,4 +17,4 @@ DEFAULT_SLAVE = 1
 DEFAULT_SCAN_INTERVAL = 5
 DEFAULT_TCP_PORT = 502
 
-PLATFORMS: list[str] = ["binary_sensor", "select", "sensor", "switch"]
+PLATFORMS: list[str] = ["binary_sensor", "fan", "select", "sensor", "switch"]

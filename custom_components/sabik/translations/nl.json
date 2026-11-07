@@ -203,6 +203,21 @@
         "name": "Storing toevoerluchtsensor"
       }
     },
+    "fan": {
+      "ventilation": {
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "low": "Laag",
+              "medium": "Midden",
+              "high": "Hoog",
+              "auto": "Automatisch",
+              "snooze": "Sluimerstand"
+            }
+          }
+        }
+      }
+    },
     "select": {
       "fan_speed": {
         "name": "Ventilatiestand",
