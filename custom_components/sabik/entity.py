@@ -33,3 +33,19 @@ class SabikEntity(CoordinatorEntity[SabikCoordinator]):
         self._attr_translation_key = key
         self._attr_unique_id = f"{entry_id}_{key}"
         self._attr_device_info = device_info(entry_id)
+
+    @property
+    def suggested_object_id(self) -> str | None:
+        """Build entity_ids from the English name on every instance language.
+
+        HA derives object ids from the instance language when it has native
+        ids for it (for example Dutch), which would break the stable ids.
+        """
+        platform_data = self.platform_data
+        if platform_data is not None and self._name_translation_key:
+            name = platform_data.default_language_platform_translations.get(
+                self._name_translation_key
+            )
+            if name:
+                return name
+        return super().suggested_object_id

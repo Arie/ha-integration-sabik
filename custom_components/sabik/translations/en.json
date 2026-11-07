@@ -70,5 +70,138 @@
         "tcp": "Modbus TCP"
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "extract_air_temperature": {
+        "name": "Extract air temperature"
+      },
+      "exhaust_air_temperature": {
+        "name": "Exhaust air temperature"
+      },
+      "outdoor_air_temperature": {
+        "name": "Outdoor air temperature"
+      },
+      "supply_air_temperature": {
+        "name": "Supply air temperature"
+      },
+      "rh_extract_air": {
+        "name": "RH extract air"
+      },
+      "rh_exhaust_air": {
+        "name": "RH exhaust air"
+      },
+      "rh_outdoor_air": {
+        "name": "RH outdoor air"
+      },
+      "rh_supply_air": {
+        "name": "RH supply air"
+      },
+      "voltage_extract_motor": {
+        "name": "Voltage extract motor"
+      },
+      "voltage_supply_motor": {
+        "name": "Voltage supply motor"
+      },
+      "rpm_extract_motor": {
+        "name": "RPM extract motor"
+      },
+      "rpm_supply_motor": {
+        "name": "RPM supply motor"
+      },
+      "bypass_valve_position": {
+        "name": "Bypass valve position",
+        "state": {
+          "closed": "Closed",
+          "open": "Open",
+          "error": "Error",
+          "unknown": "Unknown"
+        }
+      },
+      "current_work_mode": {
+        "name": "Current work mode",
+        "state": {
+          "snooze": "Snooze",
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High",
+          "boost": "Boost",
+          "auto_humidity": "Auto (humidity)",
+          "auto_voc": "Auto (VOC)",
+          "auto_0_10v_control": "Auto (0-10 V control)",
+          "auto_boost": "Auto (boost)",
+          "week_program_1": "Week program 1",
+          "week_program_2": "Week program 2",
+          "week_program_3": "Week program 3",
+          "week_program_4": "Week program 4",
+          "unknown": "Unknown"
+        }
+      },
+      "defrost_status": {
+        "name": "Defrost status",
+        "state": {
+          "inactive": "Inactive",
+          "active_fireplace": "Active (fireplace)",
+          "active_preheater": "Active (preheater)",
+          "active_unbalanced_airvolume": "Active (unbalanced air volume)",
+          "unknown": "Unknown"
+        }
+      },
+      "selected_air_volume": {
+        "name": "Selected air volume"
+      },
+      "min_outdoor_temperature_for_bypass": {
+        "name": "Min outdoor temperature for bypass"
+      },
+      "min_extract_temperature_for_bypass": {
+        "name": "Min extract temperature for bypass"
+      },
+      "min_temperature_difference_for_bypass": {
+        "name": "Min temperature difference for bypass"
+      },
+      "communication_error": {
+        "name": "Communication error",
+        "state": {
+          "none": "None",
+          "remote_control": "Remote control",
+          "modbus_rtu": "Modbus RTU"
+        }
+      },
+      "unit_clock": {
+        "name": "Unit clock"
+      }
+    },
+    "binary_sensor": {
+      "filter_alarm": {
+        "name": "Filter alarm"
+      },
+      "extract_fan_alarm": {
+        "name": "Extract fan alarm"
+      },
+      "supply_fan_alarm": {
+        "name": "Supply fan alarm"
+      },
+      "summer_mode": {
+        "name": "Summer mode"
+      },
+      "boost_status": {
+        "name": "Boost status"
+      },
+      "active_alarms": {
+        "name": "Active alarms"
+      },
+      "extract_sensor_fault": {
+        "name": "Extract air sensor fault"
+      },
+      "exhaust_sensor_fault": {
+        "name": "Exhaust air sensor fault"
+      },
+      "outdoor_sensor_fault": {
+        "name": "Outdoor air sensor fault"
+      },
+      "supply_sensor_fault": {
+        "name": "Supply air sensor fault"
+      }
+    }
   }
 }

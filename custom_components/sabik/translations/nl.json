@@ -70,5 +70,138 @@
         "tcp": "Modbus TCP"
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "extract_air_temperature": {
+        "name": "Afvoerluchttemperatuur"
+      },
+      "exhaust_air_temperature": {
+        "name": "Uitblaasluchttemperatuur"
+      },
+      "outdoor_air_temperature": {
+        "name": "Buitenluchttemperatuur"
+      },
+      "supply_air_temperature": {
+        "name": "Toevoerluchttemperatuur"
+      },
+      "rh_extract_air": {
+        "name": "RV afvoerlucht"
+      },
+      "rh_exhaust_air": {
+        "name": "RV uitblaaslucht"
+      },
+      "rh_outdoor_air": {
+        "name": "RV buitenlucht"
+      },
+      "rh_supply_air": {
+        "name": "RV toevoerlucht"
+      },
+      "voltage_extract_motor": {
+        "name": "Spanning afvoermotor"
+      },
+      "voltage_supply_motor": {
+        "name": "Spanning toevoermotor"
+      },
+      "rpm_extract_motor": {
+        "name": "RPM afvoermotor"
+      },
+      "rpm_supply_motor": {
+        "name": "RPM toevoermotor"
+      },
+      "bypass_valve_position": {
+        "name": "Bypassklepstand",
+        "state": {
+          "closed": "Dicht",
+          "open": "Open",
+          "error": "Fout",
+          "unknown": "Onbekend"
+        }
+      },
+      "current_work_mode": {
+        "name": "Huidige werkmodus",
+        "state": {
+          "snooze": "Sluimerstand",
+          "low": "Laag",
+          "medium": "Midden",
+          "high": "Hoog",
+          "boost": "Boost",
+          "auto_humidity": "Auto (vochtigheid)",
+          "auto_voc": "Auto (VOC)",
+          "auto_0_10v_control": "Auto (0-10 V-sturing)",
+          "auto_boost": "Auto (boost)",
+          "week_program_1": "Weekprogramma 1",
+          "week_program_2": "Weekprogramma 2",
+          "week_program_3": "Weekprogramma 3",
+          "week_program_4": "Weekprogramma 4",
+          "unknown": "Onbekend"
+        }
+      },
+      "defrost_status": {
+        "name": "Ontdooistatus",
+        "state": {
+          "inactive": "Inactief",
+          "active_fireplace": "Actief (haard)",
+          "active_preheater": "Actief (voorverwarmer)",
+          "active_unbalanced_airvolume": "Actief (onbalans luchtvolume)",
+          "unknown": "Onbekend"
+        }
+      },
+      "selected_air_volume": {
+        "name": "Gekozen luchtvolume"
+      },
+      "min_outdoor_temperature_for_bypass": {
+        "name": "Min. buitentemperatuur voor bypass"
+      },
+      "min_extract_temperature_for_bypass": {
+        "name": "Min. afvoertemperatuur voor bypass"
+      },
+      "min_temperature_difference_for_bypass": {
+        "name": "Min. temperatuurverschil voor bypass"
+      },
+      "communication_error": {
+        "name": "Communicatiefout",
+        "state": {
+          "none": "Geen",
+          "remote_control": "Afstandsbediening",
+          "modbus_rtu": "Modbus RTU"
+        }
+      },
+      "unit_clock": {
+        "name": "Klok van het apparaat"
+      }
+    },
+    "binary_sensor": {
+      "filter_alarm": {
+        "name": "Filteralarm"
+      },
+      "extract_fan_alarm": {
+        "name": "Afvoerventilatoralarm"
+      },
+      "supply_fan_alarm": {
+        "name": "Toevoerventilatoralarm"
+      },
+      "summer_mode": {
+        "name": "Zomermodus"
+      },
+      "boost_status": {
+        "name": "Boost-status"
+      },
+      "active_alarms": {
+        "name": "Actieve alarmen"
+      },
+      "extract_sensor_fault": {
+        "name": "Storing afvoerluchtsensor"
+      },
+      "exhaust_sensor_fault": {
+        "name": "Storing uitblaasluchtsensor"
+      },
+      "outdoor_sensor_fault": {
+        "name": "Storing buitenluchtsensor"
+      },
+      "supply_sensor_fault": {
+        "name": "Storing toevoerluchtsensor"
+      }
+    }
   }
 }

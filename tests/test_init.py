@@ -1,5 +1,7 @@
 """Entry setup, device registration and unload."""
 
+from unittest.mock import patch
+
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
@@ -39,4 +41,17 @@ async def test_unload_closes_client(
     entry = await setup_integration()
 
     assert await hass.config_entries.async_unload(entry.entry_id)
+    assert fake_client.closed
+
+
+async def test_client_closed_if_platform_setup_fails(
+    setup_integration, fake_client
+) -> None:
+    with patch(
+        "homeassistant.config_entries.ConfigEntries.async_forward_entry_setups",
+        side_effect=RuntimeError("boom"),
+    ):
+        entry = await setup_integration()
+
+    assert entry.state is ConfigEntryState.SETUP_ERROR
     assert fake_client.closed

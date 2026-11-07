@@ -20,16 +20,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: SabikConfigEntry) -> boo
     coordinator = SabikCoordinator(hass, entry, client)
     try:
         await coordinator.async_config_entry_first_refresh()
+        entry.runtime_data = coordinator
+
+        # Registered explicitly so the device exists before any entity does.
+        dr.async_get(hass).async_get_or_create(
+            config_entry_id=entry.entry_id, **device_info(entry.entry_id)
+        )
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     except BaseException:
         await client.async_close()
         raise
-    entry.runtime_data = coordinator
-
-    # Registered explicitly so the device exists before any entity does.
-    dr.async_get(hass).async_get_or_create(
-        config_entry_id=entry.entry_id, **device_info(entry.entry_id)
-    )
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 
