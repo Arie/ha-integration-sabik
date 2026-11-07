@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from collections.abc import Awaitable, Callable
-from datetime import timedelta
+from datetime import datetime, timedelta
 import logging
 from typing import Any, Literal
 
@@ -32,11 +32,13 @@ from .modbus import ConnectionSettings, SabikClient, SabikModbusError
 from .registers import (
     COIL_BOOST,
     COIL_MANUAL_BYPASS,
+    COIL_RESET_FILTER,
     COIL_SNOOZE,
     COIL_SUMMER_MODE,
     COIL_WORK_MODE_AUTO,
     FAN_SPEED_VALUES,
     HR_AIR_VOLUME,
+    HR_CLOCK,
     READ_PLAN,
     SabikData,
     decode,
@@ -169,3 +171,16 @@ class SabikCoordinator(DataUpdateCoordinator[SabikData]):
 
     async def async_set_register(self, address: int, value: int) -> None:
         await self._command(lambda: self.client.async_write_register(address, value))
+
+    async def async_reset_filter_alarm(self) -> None:
+        await self.async_write_coil(COIL_RESET_FILTER, True)
+
+    async def async_sync_clock(self, now: datetime) -> None:
+        async def write() -> None:
+            # Six single-register writes: the unit never answers a multi-register
+            # write, and its late reply corrupts the next read.
+            fields = (now.day, now.month, now.year, now.hour, now.minute, now.second)
+            for offset, value in enumerate(fields):
+                await self.client.async_write_register(HR_CLOCK + offset, value)
+
+        await self._command(write)

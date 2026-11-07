@@ -248,6 +248,28 @@
       "work_mode_auto": {
         "name": "Automatic work mode"
       }
+    },
+    "number": {
+      "min_outdoor_temperature_for_bypass": {
+        "name": "Min outdoor temperature for bypass"
+      },
+      "min_extract_temperature_for_bypass": {
+        "name": "Min extract temperature for bypass"
+      },
+      "min_temperature_difference_for_bypass": {
+        "name": "Min temperature difference for bypass"
+      },
+      "manual_bypass_timer": {
+        "name": "Manual bypass timer"
+      }
+    },
+    "button": {
+      "reset_filter_alarm": {
+        "name": "Reset filter alarm"
+      },
+      "sync_clock": {
+        "name": "Sync clock"
+      }
     }
   },
   "exceptions": {

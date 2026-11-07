@@ -248,6 +248,28 @@
       "work_mode_auto": {
         "name": "Automatische werkmodus"
       }
+    },
+    "number": {
+      "min_outdoor_temperature_for_bypass": {
+        "name": "Min. buitentemperatuur voor bypass"
+      },
+      "min_extract_temperature_for_bypass": {
+        "name": "Min. afvoertemperatuur voor bypass"
+      },
+      "min_temperature_difference_for_bypass": {
+        "name": "Min. temperatuurverschil voor bypass"
+      },
+      "manual_bypass_timer": {
+        "name": "Handmatige bypass-timer"
+      }
+    },
+    "button": {
+      "reset_filter_alarm": {
+        "name": "Filteralarm resetten"
+      },
+      "sync_clock": {
+        "name": "Klok synchroniseren"
+      }
     }
   },
   "exceptions": {
