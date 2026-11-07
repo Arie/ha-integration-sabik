@@ -234,7 +234,6 @@ logger:
 - No reconfigure option yet: delete and re-add the entry to change connection settings.
 - Week programs and other registers the old bridge didn't use aren't exposed.
 - Silencing pymodbus applies to the whole process, so it also quiets Home Assistant's built-in Modbus integration if you use that too. Enabling debug logging from the UI later doesn't undo this; use the `configuration.yaml` example under [Troubleshooting](#troubleshooting).
-- The **Reset filter alarm** button writes the documented register; whether the unit clears the alarm immediately hasn't been verified on hardware.
 
 ## Credits
 
