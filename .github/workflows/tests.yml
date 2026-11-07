@@ -1,0 +1,48 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ha: [min, latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements_test.txt
+      - name: Install pinned test requirements (Home Assistant 2026.10.4)
+        run: pip install -r requirements_test.txt
+      - name: Move to the newest Home Assistant
+        if: matrix.ha == 'latest'
+        # requirements_test.txt pins home-assistant-frontend to the build that
+        # matches the minimum HA; the newest HA needs its matching frontend too.
+        # Upgrading it unpinned lets pip pick the build HA's constraints allow.
+        run: pip install -U pytest-homeassistant-custom-component home-assistant-frontend
+      - run: pytest
+
+  card:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Committed bundle is up to date
+        run: git diff --exit-code -- ../custom_components/sabik/frontend/
