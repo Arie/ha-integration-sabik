@@ -51,11 +51,11 @@ Take a backup first.
 
 1. Stop and disable the bridge: `docker compose down` for Docker, or `systemctl --user disable --now sabik-mqtt.service` for the systemd user service.
 2. Install the integration (see above) and add it with the same connection settings.
-3. Open **Settings > Repairs** and run **Migrate from the Sabik MQTT bridge**. Entity IDs and history carry over.
+3. Open **Settings > Repairs** and run **Migrate from the Sabik MQTT bridge**. Entity IDs, history and your customisations (name, icon, area, labels, aliases, hidden or disabled, voice exposure, display precision and unit) carry over.
 4. Uninstall the old **Sabik Card** from HACS.
 5. In automations, replace `climate.sabik_ventilation` with `fan.sabik`.
 
-After migration the log may show "Cannot rename statistic_id ... already in use" recorder errors. They are harmless: history stays on the old entity IDs. Areas, labels and icons set on the old MQTT entities are not carried over. See the [changelog](CHANGELOG.md) for details.
+After migration the log may show "Cannot rename statistic_id ... already in use" recorder errors. They are harmless: history stays on the old entity IDs. See the [changelog](CHANGELOG.md) for details.
 
 ## Credits
 

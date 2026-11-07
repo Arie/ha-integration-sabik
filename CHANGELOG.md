@@ -12,7 +12,7 @@ bridge and the separate Sabik Card.
 - Direct Modbus connection over USB/serial, RTU over TCP (ser2net or a gateway) or Modbus TCP, set up in the UI.
 - Fan, sensors, switches, selects, numbers and buttons for the unit.
 - Sabik card built into the integration, with an optional room temperature and humidity line.
-- One-click repair, "Migrate from the Sabik MQTT bridge", that moves the old MQTT entities to the new integration.
+- One-click repair, "Migrate from the Sabik MQTT bridge", that moves the old MQTT entities to the new integration, keeping their entity IDs, history and customisations (name, icon, area, labels, aliases, hidden or disabled, voice exposure, display precision and unit).
 
 ### Changed
 - Voltage sensors now report volts (raw value divided by 10). Their long-term statistics jump once at the switch-over.
@@ -25,6 +25,5 @@ bridge and the separate Sabik Card.
 
 ### Known issues
 - After migration the Home Assistant log shows "Cannot rename statistic_id ... already in use" recorder errors. This is expected and harmless: history stays on the old entity IDs.
-- Areas, labels and icons set on the old MQTT entities are not carried over.
 
 [0.1.0]: https://github.com/Arie/ha-integration-sabik/releases/tag/v0.1.0

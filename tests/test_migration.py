@@ -10,9 +10,16 @@ from unittest.mock import patch
 import pytest
 from homeassistant.const import EVENT_COMPONENT_LOADED
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers import label_registry as lr
+from homeassistant.helpers.entity_registry import (
+    COMPUTED_NAME,
+    RegistryEntryDisabler,
+    RegistryEntryHider,
+)
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     async_fire_mqtt_message,
@@ -467,3 +474,147 @@ async def test_migrate_live_mqtt_entities(
         assert hass.states.get(entity_id) is not None
     assert hass.states.get("sensor.sabik_extract_air_temperature_2") is None
     assert not dr.async_get(hass).async_get_devices(identifiers={("mqtt", "sabik")})
+
+
+async def test_migrate_carries_customisations_over(
+    hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration: SetupFn
+) -> None:
+    seed_old_entities(hass, mqtt_entry)
+    ent_reg = er.async_get(hass)
+    area = ar.async_get(hass).async_create("Zolder")
+    label = lr.async_get(hass).async_create("WTW")
+    outdoor = "sensor.sabik_outdoor_air_temperature"
+    ent_reg.async_update_entity(
+        outdoor,
+        name="Buiten",
+        icon="mdi:sun-thermometer",
+        area_id=area.id,
+        labels={label.label_id},
+        aliases=["Buitentemperatuur", COMPUTED_NAME],
+        hidden_by=RegistryEntryHider.USER,
+    )
+    ent_reg.async_update_entity_options(
+        outdoor, "sensor", {"display_precision": 2, "suggested_display_precision": 3}
+    )
+    ent_reg.async_update_entity_options(outdoor, "conversation", {"should_expose": True})
+    ent_reg.async_update_entity(
+        "sensor.sabik_rh_supply_air", disabled_by=RegistryEntryDisabler.USER
+    )
+    ent_reg.async_update_entity(
+        "sensor.sabik_rh_outdoor_air", disabled_by=RegistryEntryDisabler.INTEGRATION
+    )
+    entry = await setup_integration()
+
+    result = await async_migrate(hass, entry)
+    await hass.async_block_till_done()
+
+    assert len(result.renamed) == 24
+    reg = ent_reg.async_get(outdoor)
+    assert reg.platform == DOMAIN
+    assert reg.name == "Buiten"
+    assert reg.icon == "mdi:sun-thermometer"
+    assert reg.area_id == area.id
+    assert reg.labels == {label.label_id}
+    assert reg.aliases == ["Buitentemperatuur", COMPUTED_NAME]
+    assert reg.hidden_by is RegistryEntryHider.USER
+    # The new sensor's own suggestion (1) stays; the old one (3) is HA's, not the user's.
+    assert reg.options["sensor"] == {
+        "display_precision": 2,
+        "suggested_display_precision": 1,
+    }
+    assert reg.options["conversation"] == {"should_expose": True}
+    assert (
+        ent_reg.async_get("sensor.sabik_rh_supply_air").disabled_by
+        is RegistryEntryDisabler.USER
+    )
+    # Only a user's choice carries over; the defaults of the new entity stay.
+    untouched = ent_reg.async_get("sensor.sabik_rh_outdoor_air")
+    assert untouched.platform == DOMAIN
+    assert untouched.disabled_by is None
+    assert untouched.name is None
+    assert untouched.icon is None
+    assert untouched.area_id is None
+    assert untouched.hidden_by is None
+
+
+async def test_migrate_carries_live_registry_shapes_over(
+    hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration: SetupFn
+) -> None:
+    """Aliases and options as they look on the owner's install."""
+    seed_old_entities(hass, mqtt_entry)
+    ent_reg = er.async_get(hass)
+    exposed = {
+        "binary_sensor.sabik_filter_alarm",
+        "binary_sensor.sabik_extract_fan_alarm",
+        "binary_sensor.sabik_supply_fan_alarm",
+        "sensor.sabik_outdoor_air_temperature",
+    }
+    for entity_id, _ in OLD_ENTITIES:
+        ent_reg.async_update_entity(entity_id, aliases=[COMPUTED_NAME])
+        ent_reg.async_update_entity_options(
+            entity_id, "conversation", {"should_expose": entity_id in exposed}
+        )
+    ent_reg.async_update_entity(
+        "binary_sensor.sabik_filter_alarm", aliases=["WTW filter", "Ventilatie filter"]
+    )
+    # The bridge reported 0-100; this was HA's own suggestion, not the user's.
+    ent_reg.async_update_entity_options(
+        "sensor.sabik_voltage_extract_motor",
+        "sensor",
+        {"suggested_display_precision": 0, "display_precision": None},
+    )
+    ent_reg.async_update_entity_options(
+        "sensor.sabik_extract_air_temperature",
+        "sensor",
+        {"suggested_display_precision": 3, "display_precision": None},
+    )
+    ent_reg.async_update_entity_options(
+        "sensor.sabik_supply_air_temperature", "sensor", {"display_precision": 0}
+    )
+    entry = await setup_integration()
+    own = {
+        key: ent_reg.async_get(f"sensor.sabik_{key}_2").options["sensor"]
+        for key in ("voltage_extract_motor", "extract_air_temperature")
+    }
+
+    result = await async_migrate(hass, entry)
+    await hass.async_block_till_done()
+
+    assert len(result.renamed) == 24
+    for entity_id, _ in OLD_ENTITIES:
+        reg = ent_reg.async_get(entity_id)
+        assert reg.platform == DOMAIN, entity_id
+        assert reg.options["conversation"] == {
+            "should_expose": entity_id in exposed
+        }, entity_id
+    assert ent_reg.async_get("binary_sensor.sabik_filter_alarm").aliases == [
+        "WTW filter",
+        "Ventilatie filter",
+    ]
+    assert ent_reg.async_get("binary_sensor.sabik_boost_status").aliases == [
+        COMPUTED_NAME
+    ]
+    # Old suggested_* and unset display_precision leave the new entity's own options.
+    for key, options in own.items():
+        assert ent_reg.async_get(f"sensor.sabik_{key}").options["sensor"] == options
+    supply = ent_reg.async_get("sensor.sabik_supply_air_temperature")
+    assert supply.options["sensor"]["display_precision"] == 0
+
+
+async def test_migrate_removes_climate_under_its_actual_id(
+    hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration: SetupFn
+) -> None:
+    ent_reg = er.async_get(hass)
+    ent_reg.async_get_or_create(
+        "climate",
+        "mqtt",
+        "sabik_ventilation",
+        suggested_object_id="sabik_ventilation_sabik_ventilation",
+        config_entry=mqtt_entry,
+    )
+    entry = await setup_integration()
+
+    result = await async_migrate(hass, entry)
+
+    assert result.removed == ["climate.sabik_ventilation_sabik_ventilation"]
+    assert ent_reg.async_get("climate.sabik_ventilation_sabik_ventilation") is None

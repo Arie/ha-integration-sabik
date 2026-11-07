@@ -6,6 +6,7 @@ import asyncio
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 import logging
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import (
@@ -276,6 +277,55 @@ async def _async_wait_states_removed(
         unsubscribe()
 
 
+def _user_customisations(old: er.RegistryEntry) -> dict[str, Any]:
+    """Registry fields the user set on an old entity; unset ones keep our defaults."""
+    changes: dict[str, Any] = {
+        attr: value
+        for attr in ("name", "icon", "area_id")
+        if (value := getattr(old, attr)) is not None
+    }
+    if old.labels:
+        changes["labels"] = set(old.labels)
+    if old.aliases:
+        # Kept as-is: COMPUTED_NAME (None in storage) marks where the name goes.
+        changes["aliases"] = list(old.aliases)
+    if old.hidden_by is er.RegistryEntryHider.USER:
+        changes["hidden_by"] = old.hidden_by
+    if old.disabled_by is er.RegistryEntryDisabler.USER:
+        changes["disabled_by"] = old.disabled_by
+    return changes
+
+
+# The only own-domain options a user sets; the rest (suggested_*) is written by
+# HA from the old entity's suggestions, e.g. precision 0 for the 0-100 voltage.
+_USER_DOMAIN_OPTIONS = ("display_precision", "unit_of_measurement")
+
+
+def _user_options(
+    old: er.RegistryEntry, new: er.RegistryEntry
+) -> dict[str, dict[str, Any]]:
+    """Per-domain options to merge onto the new entity, e.g. voice exposure."""
+    merged: dict[str, dict[str, Any]] = {}
+    for domain, options in old.options.items():
+        if domain.endswith(".private"):
+            continue
+        if domain == old.domain:
+            user = {
+                key: options[key]
+                for key in _USER_DOMAIN_OPTIONS
+                if options.get(key) is not None
+            }
+        else:
+            user = {
+                key: value
+                for key, value in options.items()
+                if not key.startswith("suggested_")
+            }
+        if user:
+            merged[domain] = {**new.options.get(domain, {}), **user}
+    return merged
+
+
 def _is_collision_suffix(old_id: str, new_id: str) -> bool:
     """Whether old_id is new_id plus HA's "_2"-style collision suffix.
 
@@ -329,11 +379,16 @@ async def async_migrate(hass: HomeAssistant, entry: ConfigEntry) -> MigrationRes
             continue
         if new_id == old.entity_id or _is_collision_suffix(old.entity_id, new_id):
             continue
+        new = ent_reg.entities[new_id]
         try:
-            ent_reg.async_update_entity(new_id, new_entity_id=old.entity_id)
+            ent_reg.async_update_entity(
+                new_id, new_entity_id=old.entity_id, **_user_customisations(old)
+            )
         except ValueError as err:
             _LOGGER.warning("Cannot rename %s to %s: %s", new_id, old.entity_id, err)
             result.skipped.append((new_id, old.entity_id))
             continue
+        for domain, options in _user_options(old, new).items():
+            ent_reg.async_update_entity_options(old.entity_id, domain, options)
         result.renamed.append((new_id, old.entity_id))
     return result
