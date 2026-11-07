@@ -10,6 +10,8 @@ from homeassistant.helpers.entity_registry import RegistryEntryDisabler
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
+from .test_migration import OLD_ENTITIES
+
 OLD_SENSOR_IDS = [
     "sensor.sabik_extract_air_temperature",
     "sensor.sabik_exhaust_air_temperature",
@@ -42,16 +44,24 @@ async def test_entity_ids_match_bridge(
     assert hass.states.get(entity_id) is not None
 
 
+@pytest.mark.parametrize("entity_id", [entity_id for entity_id, _ in OLD_ENTITIES])
 async def test_entity_ids_english_on_dutch_instance(
+    hass: HomeAssistant, setup_integration, entity_id: str
+) -> None:
+    hass.config.language = "nl"
+    await setup_integration()
+
+    assert hass.states.get(entity_id) is not None
+
+
+async def test_names_dutch_on_dutch_instance(
     hass: HomeAssistant, setup_integration
 ) -> None:
     hass.config.language = "nl"
     await setup_integration()
 
     state = hass.states.get("sensor.sabik_extract_air_temperature")
-    assert state is not None
     assert state.attributes["friendly_name"] == "Sabik Afvoerluchttemperatuur"
-    assert hass.states.get("binary_sensor.sabik_filter_alarm") is not None
 
 
 async def test_states_and_units(
