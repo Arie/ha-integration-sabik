@@ -30,3 +30,12 @@ async def test_connection_loss_and_recovery(
     await hass.async_block_till_done()
     assert coordinator.last_update_success is True
     unsub()
+
+
+async def test_set_register_writes_and_refreshes(setup_integration, fake_client) -> None:
+    entry = await setup_integration()
+
+    await entry.runtime_data.async_set_register(63, 150)
+
+    assert fake_client.writes == [("hr", 63, 150)]
+    assert entry.runtime_data.data.min_outdoor_temperature_for_bypass == 15.0

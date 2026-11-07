@@ -202,6 +202,54 @@
       "supply_sensor_fault": {
         "name": "Storing toevoerluchtsensor"
       }
+    },
+    "select": {
+      "fan_speed": {
+        "name": "Ventilatiestand",
+        "state": {
+          "low": "Laag",
+          "medium": "Midden",
+          "high": "Hoog",
+          "auto": "Automatisch"
+        }
+      }
+    },
+    "switch": {
+      "boost": {
+        "name": "Boost"
+      },
+      "manual_bypass": {
+        "name": "Handmatige bypass"
+      },
+      "allow_automatic_bypass": {
+        "name": "Automatische bypass toestaan"
+      },
+      "summer_mode": {
+        "name": "Zomerstand"
+      },
+      "snooze": {
+        "name": "Sluimerstand"
+      },
+      "work_mode_auto": {
+        "name": "Automatische werkmodus"
+      }
+    }
+  },
+  "exceptions": {
+    "communication_failed": {
+      "message": "Kan de Sabik niet bereiken"
+    },
+    "bypass_outdoor_too_low": {
+      "message": "Buitentemperatuur {value} °C is lager dan het bypassminimum van {minimum} °C"
+    },
+    "bypass_extract_too_low": {
+      "message": "Afvoertemperatuur {value} °C is lager dan het bypassminimum van {minimum} °C"
+    },
+    "bypass_difference_too_small": {
+      "message": "Temperatuurverschil {value} °C is lager dan het bypassminimum van {minimum} °C"
+    },
+    "summer_outdoor_too_low": {
+      "message": "Buitentemperatuur {value} °C is lager dan het minimum voor zomerstand van {minimum} °C"
     }
   }
 }

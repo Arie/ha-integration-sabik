@@ -202,6 +202,54 @@
       "supply_sensor_fault": {
         "name": "Supply air sensor fault"
       }
+    },
+    "select": {
+      "fan_speed": {
+        "name": "Fan speed",
+        "state": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High",
+          "auto": "Auto"
+        }
+      }
+    },
+    "switch": {
+      "boost": {
+        "name": "Boost"
+      },
+      "manual_bypass": {
+        "name": "Manual bypass"
+      },
+      "allow_automatic_bypass": {
+        "name": "Allow automatic bypass"
+      },
+      "summer_mode": {
+        "name": "Summer mode"
+      },
+      "snooze": {
+        "name": "Snooze"
+      },
+      "work_mode_auto": {
+        "name": "Automatic work mode"
+      }
+    }
+  },
+  "exceptions": {
+    "communication_failed": {
+      "message": "Could not reach the Sabik unit"
+    },
+    "bypass_outdoor_too_low": {
+      "message": "Outdoor temperature {value} °C is below the bypass minimum of {minimum} °C"
+    },
+    "bypass_extract_too_low": {
+      "message": "Extract temperature {value} °C is below the bypass minimum of {minimum} °C"
+    },
+    "bypass_difference_too_small": {
+      "message": "Temperature difference {value} °C is below the bypass minimum of {minimum} °C"
+    },
+    "summer_outdoor_too_low": {
+      "message": "Outdoor temperature {value} °C is below the summer mode minimum of {minimum} °C"
     }
   }
 }
