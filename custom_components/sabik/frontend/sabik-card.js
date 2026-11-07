@@ -218,9 +218,9 @@ var SabikCard = class extends LitElement {
               <div class="flex-col-main">
                   ${(() => {
       const room = roomReadingParts(this.config);
-      return room.temperature || room.humidity ? html`<div>${room.temperature ? html`${this._roomTemp()}°C` : ""}${room.temperature && room.humidity ? " " : ""}${room.humidity ? html`<ha-icon icon="mdi:water-percent"></ha-icon>${this._roomHumidity()}%` : ""}</div>` : "";
+      return room.temperature || room.humidity ? html`<div class="room">${room.temperature ? html`<div>${this._roomTemp()}°C</div>` : ""}${room.humidity ? html`<div><ha-icon icon="mdi:water-percent"></ha-icon>${this._roomHumidity()}%</div>` : ""}</div>` : "";
     })()}
-                  <div>
+                  <div class="controls">
                     <span class="fan-picker">
                       <ha-icon
                         class="clickable ${this.loadingStates.fan ? "loading" : ""}"
@@ -416,10 +416,18 @@ Outdoor temp too low (${outdoorTemp}\xB0C < ${minOutdoorTemp}\xB0C)`;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 30px 0px;
+      padding: 4px 0px 30px;
       font-size: x-large;
       text-align: center;
       font-weight:bold;
+    }
+    .room {
+      font-size: 0.95rem;
+      line-height: 1.25;
+      --mdc-icon-size: 16px;
+    }
+    .controls {
+      margin-top: auto;
     }
     .flex-col-out {
       display: flex;
