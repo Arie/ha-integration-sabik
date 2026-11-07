@@ -118,7 +118,7 @@ All entities belong to one device, **Sabik**.
 | `switch.sabik_manual_bypass` | Opens the bypass. Refused with a clear message when the temperatures don't allow it (outdoor and extract below their minimums, or the difference too small). |
 | `switch.sabik_summer_mode` | Summer mode. Refused when the outdoor temperature is below the bypass minimum. |
 | `switch.sabik_allow_automatic_bypass` | Lets the unit open the bypass by itself. |
-| `switch.sabik_automatic_work_mode` | Automatic (sensor-driven) vs manual work mode. |
+| `switch.sabik_automatic_work_mode` | Automatic (sensor-driven) vs manual work mode. Either way it leaves snooze first. |
 | `number.sabik_min_outdoor_temperature_for_bypass` | 12.0–20.0 °C |
 | `number.sabik_min_extract_temperature_for_bypass` | 21.0–30.0 °C |
 | `number.sabik_min_temperature_difference_for_bypass` | 3.0–6.0 °C |

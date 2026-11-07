@@ -19,6 +19,7 @@ bridge and the separate Sabik Card.
 - Boost status: confirmed on hardware that DI 29 = 1 means boost is active, although the register documentation says the opposite. The behaviour is unchanged from the bridge.
 - Fan speed shows unknown instead of falling back to "medium".
 - The bypass temperature-difference threshold accepts 3.0 and 6.0.
+- Switching the automatic work mode on or off also leaves snooze, as the bridge's mode command did.
 
 ### Fixed
 - Clock sync works. It is written as six single-register writes, because the unit applies a multi-register write but never answers it.

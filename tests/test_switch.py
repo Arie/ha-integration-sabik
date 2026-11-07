@@ -135,7 +135,6 @@ async def test_summer_allowed_at_minimum(
     [
         ("switch.sabik_allow_automatic_bypass", 8),
         ("switch.sabik_snooze", 17),
-        ("switch.sabik_automatic_work_mode", 25),
     ],
 )
 @pytest.mark.parametrize("on", [True, False])
@@ -148,6 +147,19 @@ async def test_simple_coils(
 
     assert fake_client.writes == [("coil", coil, on)]
     assert hass.states.get(entity_id).state == ("on" if on else "off")
+
+
+@pytest.mark.parametrize("on", [True, False])
+async def test_work_mode_unsnoozes_first(
+    hass: HomeAssistant, setup_integration, fake_client, on
+) -> None:
+    fake_client.coil[17] = True
+    await setup_integration()
+
+    await _switch(hass, "switch.sabik_automatic_work_mode", on)
+
+    assert fake_client.writes == [("coil", 17, False), ("coil", 25, on)]
+    assert hass.states.get("switch.sabik_snooze").state == "off"
 
 
 async def test_write_failure_raises(

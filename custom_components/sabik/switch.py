@@ -14,7 +14,6 @@ from .entity import SabikEntity
 from .registers import (
     COIL_ALLOW_AUTO_BYPASS,
     COIL_SNOOZE,
-    COIL_WORK_MODE_AUTO,
     SabikData,
 )
 
@@ -55,7 +54,11 @@ SWITCHES: tuple[SabikSwitchEntityDescription, ...] = (
         set_fn=lambda coordinator, on: coordinator.async_set_summer_mode(on),
     ),
     _coil("snooze", COIL_SNOOZE),
-    _coil("work_mode_auto", COIL_WORK_MODE_AUTO),
+    SabikSwitchEntityDescription(
+        key="work_mode_auto",
+        is_on_fn=lambda data: data.work_mode_auto,
+        set_fn=lambda coordinator, on: coordinator.async_set_work_mode_auto(on),
+    ),
 )
 
 

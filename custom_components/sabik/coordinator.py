@@ -137,6 +137,14 @@ class SabikCoordinator(DataUpdateCoordinator[SabikData]):
 
         await self._command(write)
 
+    async def async_set_work_mode_auto(self, on: bool) -> None:
+        async def write() -> None:
+            # Like the bridge's mode command: either work mode means running, not snoozed.
+            await self.client.async_write_coil(COIL_SNOOZE, False)
+            await self.client.async_write_coil(COIL_WORK_MODE_AUTO, on)
+
+        await self._command(write)
+
     async def async_set_manual_bypass(self, on: bool) -> None:
         if on:
             data = self.data
