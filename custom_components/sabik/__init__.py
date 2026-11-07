@@ -11,10 +11,12 @@ from . import modbus
 from .const import PLATFORMS
 from .coordinator import SabikConfigEntry, SabikCoordinator, settings_from_entry
 from .entity import device_info
+from .frontend import async_register_card
 from .migration import MQTT_DOMAIN, async_check_migration, async_stop_monitor
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    await async_register_card(hass)
     return True
 
 
