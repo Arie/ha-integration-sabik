@@ -102,6 +102,15 @@ async def test_diagnostics_disabled_by_default(
         assert reg.disabled_by is RegistryEntryDisabler.INTEGRATION
 
 
+async def test_motor_voltage_shows_one_decimal(
+    hass: HomeAssistant, setup_integration
+) -> None:
+    await setup_integration()
+
+    entry = er.async_get(hass).async_get("sensor.sabik_voltage_extract_motor")
+    assert entry.options["sensor"]["suggested_display_precision"] == 1
+
+
 async def test_unit_clock_is_local_time(
     hass: HomeAssistant, setup_integration, fake_client
 ) -> None:

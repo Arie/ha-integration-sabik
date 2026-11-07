@@ -82,6 +82,7 @@ def _voltage(key: str) -> SabikSensorEntityDescription:
         key=key,
         device_class=SensorDeviceClass.VOLTAGE,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        suggested_display_precision=1,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=_attr(key),
     )
