@@ -11,6 +11,8 @@ A native Home Assistant integration for the S&P Sabik heat recovery unit (Sabik 
 
 Requires Home Assistant **2026.10.4** or newer.
 
+![The Sabik card: outdoor, exhaust, extract and supply air temperatures and humidity around the heat exchanger diagram, fan speeds, the room temperature in the middle, and the fan, filter, bypass, defrost and summer mode indicators along the bottom](https://raw.githubusercontent.com/Arie/ha-integration-sabik/master/images/sabik-card.png)
+
 ## Contents
 
 1. [Hardware](#hardware)
