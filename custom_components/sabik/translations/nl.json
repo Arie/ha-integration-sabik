@@ -1,0 +1,74 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Sabik",
+        "description": "Hoe is de unit aangesloten?",
+        "menu_options": {
+          "serial": "USB / seriële poort",
+          "network": "Netwerk (host:poort)"
+        }
+      },
+      "serial": {
+        "title": "USB / seriële poort",
+        "description": "Kies de seriële adapter die op de unit is aangesloten.",
+        "data": {
+          "port": "Seriële poort"
+        },
+        "sections": {
+          "advanced": {
+            "name": "Geavanceerde instellingen",
+            "description": "De standaardwaarden komen overeen met de fabrieksinstellingen van de unit.",
+            "data": {
+              "slave": "Slave-adres",
+              "baudrate": "Baudrate",
+              "parity": "Pariteit",
+              "scan_interval": "Pollinginterval"
+            }
+          }
+        }
+      },
+      "network": {
+        "title": "Netwerk (host:poort)",
+        "description": "Verbind via een serieel-naar-netwerk-gateway zoals ser2net.",
+        "data": {
+          "host": "Host",
+          "tcp_port": "Poort",
+          "protocol": "Protocol"
+        },
+        "sections": {
+          "advanced": {
+            "name": "Geavanceerde instellingen",
+            "description": "De standaardwaarden komen overeen met de fabrieksinstellingen van de unit.",
+            "data": {
+              "slave": "Slave-adres",
+              "scan_interval": "Pollinginterval"
+            }
+          }
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Geen antwoord van de unit, controleer de bedrading en instellingen",
+      "no_ports": "Geen seriële poorten gevonden, voer het pad handmatig in"
+    },
+    "abort": {
+      "already_configured": "Deze unit is al geconfigureerd"
+    }
+  },
+  "selector": {
+    "parity": {
+      "options": {
+        "even": "Even",
+        "odd": "Oneven",
+        "none": "Geen"
+      }
+    },
+    "protocol": {
+      "options": {
+        "rtu_over_tcp": "Modbus RTU over TCP (ruwe gateway)",
+        "tcp": "Modbus TCP"
+      }
+    }
+  }
+}

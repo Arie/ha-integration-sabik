@@ -1,0 +1,74 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Sabik",
+        "description": "How is the unit connected?",
+        "menu_options": {
+          "serial": "USB / serial port",
+          "network": "Network (host:port)"
+        }
+      },
+      "serial": {
+        "title": "USB / serial port",
+        "description": "Choose the serial adapter connected to the unit.",
+        "data": {
+          "port": "Serial port"
+        },
+        "sections": {
+          "advanced": {
+            "name": "Advanced settings",
+            "description": "The defaults match the unit's factory settings.",
+            "data": {
+              "slave": "Slave address",
+              "baudrate": "Baud rate",
+              "parity": "Parity",
+              "scan_interval": "Poll interval"
+            }
+          }
+        }
+      },
+      "network": {
+        "title": "Network (host:port)",
+        "description": "Connect through a serial-to-network gateway such as ser2net.",
+        "data": {
+          "host": "Host",
+          "tcp_port": "Port",
+          "protocol": "Protocol"
+        },
+        "sections": {
+          "advanced": {
+            "name": "Advanced settings",
+            "description": "The defaults match the unit's factory settings.",
+            "data": {
+              "slave": "Slave address",
+              "scan_interval": "Poll interval"
+            }
+          }
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No response from the unit, check wiring and settings",
+      "no_ports": "No serial ports found, enter the path manually"
+    },
+    "abort": {
+      "already_configured": "This unit is already configured"
+    }
+  },
+  "selector": {
+    "parity": {
+      "options": {
+        "even": "Even",
+        "odd": "Odd",
+        "none": "None"
+      }
+    },
+    "protocol": {
+      "options": {
+        "rtu_over_tcp": "Modbus RTU over TCP (raw gateway)",
+        "tcp": "Modbus TCP"
+      }
+    }
+  }
+}
