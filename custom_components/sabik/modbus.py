@@ -5,11 +5,14 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Iterable
 from dataclasses import dataclass
+import logging
 from typing import Any, Literal
 
 from pymodbus import FramerType
 from pymodbus.client import AsyncModbusSerialClient, AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
+
+_LOGGER = logging.getLogger(__name__)
 
 TIMEOUT = 2
 RETRIES = 1
@@ -61,6 +64,10 @@ class SabikClient:
 
     def _build(self) -> Any:
         cfg = self._settings
+        # pymodbus logs every failed 5 s poll; the coordinator already logs the
+        # outage once. Keep its lines for users who debug this integration.
+        if not _LOGGER.isEnabledFor(logging.DEBUG):
+            logging.getLogger("pymodbus").setLevel(logging.CRITICAL)
         # reconnect_delay=0 turns off pymodbus' background reconnect; we
         # reconnect lazily on the next call instead.
         common = {"timeout": TIMEOUT, "retries": RETRIES, "reconnect_delay": 0}

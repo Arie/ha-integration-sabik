@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import socket
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -150,3 +151,53 @@ async def test_serial_settings():
     assert kwargs["parity"] == "N"
     assert kwargs["stopbits"] == 2
     assert kwargs["bytesize"] == 8
+
+
+def _pymodbus_records(caplog) -> list:
+    return [
+        r
+        for r in caplog.records
+        if r.name.startswith("pymodbus") and r.levelno >= logging.WARNING
+    ]
+
+
+async def _read_unreachable() -> None:
+    sabik = SabikClient(
+        ConnectionSettings(
+            transport="tcp", host="127.0.0.1", tcp_port=_free_port(), port=None
+        )
+    )
+    for _ in range(2):
+        with pytest.raises(SabikModbusError):
+            await sabik.async_read(READ_PLAN)
+    await sabik.async_close()
+
+
+@pytest.fixture
+def pymodbus_level():
+    # The client changes a process-wide logger; restore it for other tests.
+    logger = logging.getLogger("pymodbus")
+    level = logger.level
+    logger.setLevel(logging.NOTSET)
+    yield
+    logger.setLevel(level)
+
+
+async def test_unreachable_unit_keeps_pymodbus_quiet(
+    socket_enabled, caplog, pymodbus_level
+):
+    caplog.set_level(logging.WARNING)
+    caplog.set_level(logging.INFO, logger="custom_components.sabik")
+
+    await _read_unreachable()
+
+    assert _pymodbus_records(caplog) == []
+
+
+async def test_pymodbus_logs_when_debugging(socket_enabled, caplog, pymodbus_level):
+    caplog.set_level(logging.WARNING)
+    caplog.set_level(logging.DEBUG, logger="custom_components.sabik")
+
+    await _read_unreachable()
+
+    assert _pymodbus_records(caplog)
