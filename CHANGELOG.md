@@ -16,7 +16,7 @@ bridge and the separate Sabik Card.
 
 ### Changed
 - Voltage sensors now report volts (raw value divided by 10). Their long-term statistics jump once at the switch-over.
-- Boost status now shows the true state. Verified on hardware: DI 29 = 1 means boost is active (the register documentation says the opposite).
+- Boost status: confirmed on hardware that DI 29 = 1 means boost is active, although the register documentation says the opposite. The behaviour is unchanged from the bridge.
 - Fan speed shows unknown instead of falling back to "medium".
 - The bypass temperature-difference threshold accepts 3.0 and 6.0.
 

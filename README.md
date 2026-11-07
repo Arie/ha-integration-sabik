@@ -36,7 +36,7 @@ Only one client can talk to the unit at a time. Stop anything else that uses the
 
 ## Entities
 
-- **Fan:** `fan.sabik` is the main control: speed and presets. Turning it off means snooze.
+- **Fan:** `fan.sabik` is the main control, with presets low, medium, high, auto and snooze. Turning it off means snooze.
 - **Sensors:** air temperatures (extract, exhaust, outdoor, supply), relative humidity per air stream, fan RPM and motor voltage, bypass valve position, work mode, defrost status, selected air volume, communication error, unit clock.
 - **Binary sensors:** filter alarm, fan alarms, summer mode, boost status, active alarms, temperature sensor faults.
 - **Controls:** switches for boost, manual bypass, automatic bypass, summer mode, snooze and automatic work mode; a fan speed select; numbers for the bypass thresholds and manual bypass timer; buttons to reset the filter alarm and sync the unit clock.
@@ -53,7 +53,7 @@ Take a backup first.
 2. Install the integration (see above) and add it with the same connection settings.
 3. Open **Settings > Repairs** and run **Migrate from the Sabik MQTT bridge**. Entity IDs, history and your customisations (name, icon, area, labels, aliases, hidden or disabled, voice exposure, display precision and unit) carry over.
 4. Uninstall the old **Sabik Card** from HACS.
-5. In automations, replace `climate.sabik_ventilation` with `fan.sabik`.
+5. In automations, replace the old Sabik Ventilation climate entity (for example `climate.sabik_ventilation` or `climate.sabik_ventilation_sabik_ventilation`) with `fan.sabik`.
 
 After migration the log may show "Cannot rename statistic_id ... already in use" recorder errors. They are harmless: history stays on the old entity IDs. See the [changelog](CHANGELOG.md) for details.
 

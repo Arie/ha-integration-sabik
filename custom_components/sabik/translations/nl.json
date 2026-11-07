@@ -300,11 +300,11 @@
           },
           "confirm": {
             "title": "Entiteiten overzetten",
-            "description": "Na bevestigen wordt het volgende gedaan:\n\n1. De MQTT-discoverytopics van de bridge worden gewist, zodat de oude entiteiten niet terugkomen.\n2. De oude MQTT-entiteiten worden verwijderd, ook `climate.sabik_ventilation`, net als de MQTT-apparaten van de bridge.\n3. De nieuwe Sabik-entiteiten krijgen de oude entiteit-ID's, zodat dashboards, automatiseringen en geschiedenis blijven werken."
+            "description": "Na bevestigen wordt het volgende gedaan:\n\n1. De MQTT-discoverytopics van de bridge worden gewist, zodat de oude entiteiten niet terugkomen.\n2. De oude MQTT-entiteiten worden verwijderd, ook de oude klimaatentiteit Sabik Ventilation (bijvoorbeeld `climate.sabik_ventilation`), net als de MQTT-apparaten van de bridge.\n3. De nieuwe Sabik-entiteiten krijgen de oude entiteit-ID's, zodat dashboards, automatiseringen en geschiedenis blijven werken."
           },
           "done": {
             "title": "Overstap klaar",
-            "description": "Hernoemde entiteiten: {renamed}\nVerwijderde oude entiteiten: {removed}\nNiet hernoemd, omdat de oude ID nog in gebruik is:\n{skipped}\n\nVolgende stappen:\n- Verwijder de oude Sabik Card uit HACS.\n- Automatiseringen die `climate.sabik_ventilation` gebruikten, moeten `fan.sabik` gebruiken."
+            "description": "Hernoemde entiteiten: {renamed}\nVerwijderde oude entiteiten: {removed}\nNiet hernoemd, omdat de oude ID nog in gebruik is:\n{skipped}\n\nVolgende stappen:\n- Verwijder de oude Sabik Card uit HACS.\n- Automatiseringen die de oude klimaatentiteit Sabik Ventilation (bijvoorbeeld `climate.sabik_ventilation`) gebruikten, moeten `fan.sabik` gebruiken."
           }
         },
         "error": {

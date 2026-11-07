@@ -300,11 +300,11 @@
           },
           "confirm": {
             "title": "Migrate the entities",
-            "description": "Submitting will:\n\n1. Clear the bridge's MQTT discovery topics, so the old entities don't come back.\n2. Remove the old MQTT entities, including `climate.sabik_ventilation`, and the bridge's MQTT devices.\n3. Rename the new Sabik entities to the old entity IDs, so dashboards, automations and history keep working."
+            "description": "Submitting will:\n\n1. Clear the bridge's MQTT discovery topics, so the old entities don't come back.\n2. Remove the old MQTT entities, including the old Sabik Ventilation climate entity (for example `climate.sabik_ventilation`), and the bridge's MQTT devices.\n3. Rename the new Sabik entities to the old entity IDs, so dashboards, automations and history keep working."
           },
           "done": {
             "title": "Migration finished",
-            "description": "Renamed entities: {renamed}\nRemoved old entities: {removed}\nNot renamed, because the old ID is still in use:\n{skipped}\n\nNext steps:\n- Uninstall the old Sabik Card from HACS.\n- Automations that used `climate.sabik_ventilation` should use `fan.sabik`."
+            "description": "Renamed entities: {renamed}\nRemoved old entities: {removed}\nNot renamed, because the old ID is still in use:\n{skipped}\n\nNext steps:\n- Uninstall the old Sabik Card from HACS.\n- Automations that used the old Sabik Ventilation climate entity (for example `climate.sabik_ventilation`) should use `fan.sabik`."
           }
         },
         "error": {
