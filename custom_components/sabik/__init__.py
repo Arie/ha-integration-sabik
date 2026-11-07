@@ -4,15 +4,19 @@ from __future__ import annotations
 
 from homeassistant.const import EVENT_COMPONENT_LOADED
 from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.setup import EventComponentLoaded
 
 from . import modbus
-from .const import PLATFORMS
+from .const import DOMAIN, PLATFORMS
 from .coordinator import SabikConfigEntry, SabikCoordinator, settings_from_entry
 from .entity import device_info
 from .frontend import async_register_card
 from .migration import MQTT_DOMAIN, async_check_migration, async_stop_monitor
+
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
