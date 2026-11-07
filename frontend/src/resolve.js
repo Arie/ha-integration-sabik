@@ -39,3 +39,14 @@ export function pickDevice(hass, config) {
 export function temperatureDifference(extract, outdoor) {
   return Math.round((extract - outdoor) * 10) / 10;
 }
+
+// The click follows the manual bypass switch, not the valve: when the unit
+// opened the valve itself, turning the manual bypass off would do nothing.
+export function bypassState(valve, manual, automatic) {
+  const manualOn = manual === "on";
+  return {
+    open: valve === "open",
+    automatic: valve === "open" && !manualOn && automatic === "on",
+    turnOn: !manualOn,
+  };
+}

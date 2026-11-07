@@ -187,6 +187,12 @@
       "boost_status": {
         "name": "Boost status"
       },
+      "automatic_bypass": {
+        "name": "Automatic bypass"
+      },
+      "boost_contact": {
+        "name": "Boost contact"
+      },
       "active_alarms": {
         "name": "Active alarms"
       },

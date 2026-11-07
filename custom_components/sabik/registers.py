@@ -93,6 +93,8 @@ class SabikData:
     supply_sensor_fault: bool
     extract_fan_alarm: bool
     supply_fan_alarm: bool
+    automatic_bypass: bool
+    boost_contact: bool
     boost_active: bool
     manual_bypass: bool
     allow_automatic_bypass: bool
@@ -165,6 +167,8 @@ def decode(raw: RawRegisters) -> SabikData:
         supply_sensor_fault=di[9],
         extract_fan_alarm=di[10],
         supply_fan_alarm=di[11],
+        automatic_bypass=di[15],
+        boost_contact=di[28],
         boost_active=di[29] == BOOST_ACTIVE_WHEN_DI29_IS,
         manual_bypass=coil[COIL_MANUAL_BYPASS],
         allow_automatic_bypass=coil[COIL_ALLOW_AUTO_BYPASS],

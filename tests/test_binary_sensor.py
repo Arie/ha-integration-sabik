@@ -59,3 +59,20 @@ async def test_fault_diagnostics_disabled_by_default(
         reg = registry.async_get(f"binary_sensor.sabik_{key}")
         assert reg is not None, key
         assert reg.disabled_by is RegistryEntryDisabler.INTEGRATION
+
+
+@pytest.mark.parametrize(
+    ("entity_id", "di"),
+    [
+        ("binary_sensor.sabik_automatic_bypass", 15),
+        ("binary_sensor.sabik_boost_contact", 28),
+    ],
+)
+async def test_unit_inputs(
+    hass: HomeAssistant, setup_integration, fake_client, entity_id, di
+) -> None:
+    fake_client.di[di] = True
+    await setup_integration()
+
+    assert hass.states.get(entity_id).state == "on"
+    assert er.async_get(hass).async_get(entity_id).disabled_by is None

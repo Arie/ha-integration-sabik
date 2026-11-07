@@ -1,7 +1,7 @@
 // Sabik Lovelace card, based on wichers/lovelace-comfoair (MIT license, see LICENSE).
 import { SABIK_BG } from "./background.js";
 import { editorSchema, roomReadingParts } from "./editor-schema.js";
-import { pickDevice, resolveEntities, temperatureDifference } from "./resolve.js";
+import { bypassState, pickDevice, resolveEntities, temperatureDifference } from "./resolve.js";
 
 // Registered up front: the picker does not need Lit, and this way the entry
 // exists even if Lovelace is slow to load.
@@ -171,9 +171,9 @@ class SabikCard extends LitElement {
 
   handleBypassClick() {
     this.setLoading('bypass');
-    const currentState = this._state('sensor.bypass_valve_position');
+    const { turnOn } = this._bypassState();
 
-    this._call('switch', currentState === 'open' ? 'turn_off' : 'turn_on', 'switch.manual_bypass');
+    this._call('switch', turnOn ? 'turn_on' : 'turn_off', 'switch.manual_bypass');
   }
 
   handleSummerModeClick() {
@@ -296,8 +296,16 @@ class SabikCard extends LitElement {
     }
   }
 
+  _bypassState() {
+    return bypassState(
+      this._state('sensor.bypass_valve_position'),
+      this._state('switch.manual_bypass'),
+      this._state('binary_sensor.automatic_bypass')
+    );
+  }
+
   getBypassTmpl(){
-    const currentState = this._state('sensor.bypass_valve_position');
+    const { open, automatic } = this._bypassState();
     const outdoorTemp = parseFloat(this._state('sensor.outdoor_air_temperature'));
     const extractTemp = parseFloat(this._state('sensor.extract_air_temperature'));
     const tempDiff = temperatureDifference(extractTemp, outdoorTemp);
@@ -320,7 +328,7 @@ class SabikCard extends LitElement {
 
     const tooltip = conditions.length > 0
       ? `Cannot enable bypass:\n${conditions.join('\n')}`
-      : `Bypass ${currentState === 'open' ? 'active' : 'inactive'}\nOutdoor: ${outdoorTemp}°C\nIndoor: ${extractTemp}°C\nDiff: ${tempDiff.toFixed(1)}°C`;
+      : `Bypass ${automatic ? 'opened automatically by the unit' : open ? 'active' : 'inactive'}\nOutdoor: ${outdoorTemp}°C\nIndoor: ${extractTemp}°C\nDiff: ${tempDiff.toFixed(1)}°C`;
 
     return html`
       <div class="tooltip">
@@ -328,7 +336,7 @@ class SabikCard extends LitElement {
           class="${[
             'clickable',
             this.loadingStates.bypass ? 'loading' : '',
-            currentState !== 'open' ? 'inactive' : '',
+            !open ? 'inactive' : '',
             conditions.length > 0 ? 'disabled' : ''
           ].filter(Boolean).join(' ')}"
           @click=${this.handleBypassClick}

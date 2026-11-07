@@ -137,6 +137,7 @@ All entities belong to one device, **Sabik**.
 **Binary sensors**
 
 - Filter alarm, extract fan alarm, supply fan alarm, summer mode, boost status.
+- Automatic bypass (the unit opened the bypass itself) and boost contact (a wired boost switch is closed).
 - Diagnostic, disabled by default: active alarms, and a fault sensor per temperature sensor.
 
 When the unit can't be reached, all entities become unavailable. The integration keeps retrying and recovers by itself.
@@ -165,7 +166,7 @@ room_temperature_entity: sensor.living_room_temperature
 room_humidity_entity: sensor.living_room_humidity
 ```
 
-The card's buttons use the integration's entities: the fan menu sets the fan speed, the icons toggle boost, snooze, bypass and summer mode. Bypass and summer mode are greyed out when the temperatures don't allow them. Errors appear as a notification at the bottom of the screen.
+The card's buttons use the integration's entities: the fan menu sets the fan speed, the icons toggle boost, snooze, bypass and summer mode. Bypass and summer mode are greyed out when the temperatures don't allow them. When the unit opened the bypass itself, the bypass tooltip says so, and a click turns on the manual bypass instead of doing nothing. Errors appear as a notification at the bottom of the screen.
 
 ## Migrating from the MQTT bridge
 

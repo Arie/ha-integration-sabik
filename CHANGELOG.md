@@ -11,6 +11,7 @@ bridge and the separate Sabik Card.
 ### Added
 - Direct Modbus connection over USB/serial, RTU over TCP (ser2net or a gateway) or Modbus TCP, set up in the UI.
 - Fan, sensors, switches, selects, numbers and buttons for the unit.
+- Binary sensors for automatic bypass (DI 15) and the boost contact (DI 28), which the bridge read but never published.
 - Sabik card built into the integration, with an optional room temperature and humidity line.
 - One-click repair, "Migrate from the Sabik MQTT bridge", that moves the old MQTT entities to the new integration, keeping their entity IDs, history and customisations (name, icon, area, labels, aliases, hidden or disabled, voice exposure, display precision and unit).
 
@@ -20,6 +21,7 @@ bridge and the separate Sabik Card.
 - Fan speed shows unknown instead of falling back to "medium".
 - The bypass temperature-difference threshold accepts 3.0 and 6.0.
 - Switching the automatic work mode on or off also leaves snooze, as the bridge's mode command did.
+- The card's bypass button follows the manual bypass switch instead of the valve position, and its tooltip shows when the unit opened the bypass itself.
 
 ### Fixed
 - Clock sync works. It is written as six single-register writes, because the unit applies a multi-register write but never answers it.

@@ -31,6 +31,14 @@ function pickDevice(hass, config) {
 function temperatureDifference(extract, outdoor) {
   return Math.round((extract - outdoor) * 10) / 10;
 }
+function bypassState(valve, manual, automatic) {
+  const manualOn = manual === "on";
+  return {
+    open: valve === "open",
+    automatic: valve === "open" && !manualOn && automatic === "on",
+    turnOn: !manualOn
+  };
+}
 
 // src/editor-schema.js
 function editorSchema(hass) {
@@ -191,8 +199,8 @@ var SabikCard = class extends LitElement {
   }
   handleBypassClick() {
     this.setLoading("bypass");
-    const currentState = this._state("sensor.bypass_valve_position");
-    this._call("switch", currentState === "open" ? "turn_off" : "turn_on", "switch.manual_bypass");
+    const { turnOn } = this._bypassState();
+    this._call("switch", turnOn ? "turn_on" : "turn_off", "switch.manual_bypass");
   }
   handleSummerModeClick() {
     this.setLoading("summer");
@@ -307,8 +315,15 @@ var SabikCard = class extends LitElement {
       return html`<ha-icon class="inactive" icon="mdi:air-filter"></ha-icon>`;
     }
   }
+  _bypassState() {
+    return bypassState(
+      this._state("sensor.bypass_valve_position"),
+      this._state("switch.manual_bypass"),
+      this._state("binary_sensor.automatic_bypass")
+    );
+  }
   getBypassTmpl() {
-    const currentState = this._state("sensor.bypass_valve_position");
+    const { open, automatic } = this._bypassState();
     const outdoorTemp = parseFloat(this._state("sensor.outdoor_air_temperature"));
     const extractTemp = parseFloat(this._state("sensor.extract_air_temperature"));
     const tempDiff = temperatureDifference(extractTemp, outdoorTemp);
@@ -326,7 +341,7 @@ var SabikCard = class extends LitElement {
       conditions.push(`Temperature difference too small (${tempDiff.toFixed(1)}\xB0C < ${minTempDiff}\xB0C)`);
     }
     const tooltip = conditions.length > 0 ? `Cannot enable bypass:
-${conditions.join("\n")}` : `Bypass ${currentState === "open" ? "active" : "inactive"}
+${conditions.join("\n")}` : `Bypass ${automatic ? "opened automatically by the unit" : open ? "active" : "inactive"}
 Outdoor: ${outdoorTemp}\xB0C
 Indoor: ${extractTemp}\xB0C
 Diff: ${tempDiff.toFixed(1)}\xB0C`;
@@ -336,7 +351,7 @@ Diff: ${tempDiff.toFixed(1)}\xB0C`;
           class="${[
       "clickable",
       this.loadingStates.bypass ? "loading" : "",
-      currentState !== "open" ? "inactive" : "",
+      !open ? "inactive" : "",
       conditions.length > 0 ? "disabled" : ""
     ].filter(Boolean).join(" ")}"
           @click=${this.handleBypassClick}

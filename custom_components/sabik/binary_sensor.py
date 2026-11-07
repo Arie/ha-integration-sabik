@@ -48,6 +48,12 @@ BINARY_SENSORS: tuple[SabikBinarySensorEntityDescription, ...] = (
     SabikBinarySensorEntityDescription(
         key="boost_status", is_on_fn=lambda data: data.boost_active
     ),
+    SabikBinarySensorEntityDescription(
+        key="automatic_bypass", is_on_fn=lambda data: data.automatic_bypass
+    ),
+    SabikBinarySensorEntityDescription(
+        key="boost_contact", is_on_fn=lambda data: data.boost_contact
+    ),
     _problem("active_alarms", diagnostic=True),
     _problem("extract_sensor_fault", diagnostic=True),
     _problem("exhaust_sensor_fault", diagnostic=True),
