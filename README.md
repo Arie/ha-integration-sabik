@@ -191,7 +191,10 @@ If you used the Ruby bridge ([Arie/sabik](https://github.com/Arie/sabik)) and th
 5. **Remove the old card**, or it may load instead of the new one:
    - In HACS, uninstall **Sabik Card**.
    - In **Settings → Dashboards → ⋮ → Resources**, delete any remaining `sabik-card.js` resource (for example `/local/lovelace-sabik/sabik-card.js` if you installed it by hand).
+   - If your resources are in YAML (`lovelace:` → `resources:` in `configuration.yaml`), that page can't edit them. Remove the `sabik-card.js` line from the YAML and restart Home Assistant.
+   - If you installed the card by hand, you can delete the leftover `config/www/lovelace-sabik/` folder. Nothing loads it once the resource is gone.
    - Reload the dashboard with a hard refresh (Ctrl+Shift+R); in the companion app, use **Reload resources** or restart the app.
+   - To check which card is loaded, edit a Sabik card. The new card opens a visual editor with the room sensor fields; the old card only offers YAML. If you still see the old one, a resource is left over.
 6. **Set the room sensors on your cards.** The old card had the room temperature sensor hardcoded; the new one asks for it. Edit each Sabik card and pick the room temperature (and optionally humidity) sensor. An old `entity:` line on the card can be removed; it's not used.
 7. **Update automations** that used the old climate entity (`climate.sabik_ventilation`, or `climate.sabik_ventilation_sabik_ventilation` depending on your setup) to use `fan.sabik`, `select.sabik_fan_speed` or the switches.
 
