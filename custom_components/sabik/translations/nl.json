@@ -296,7 +296,7 @@
         "step": {
           "init": {
             "title": "Stop de Sabik MQTT-bridge",
-            "description": "Home Assistant heeft nog de entiteiten van de oude Ruby/MQTT-bridge. Stop de bridge voordat je overstapt (bijvoorbeeld met `sudo systemctl stop sabik.service`) en zorg dat hij niet opnieuw start.\n\nDe seriële Modbus-bus van de unit staat maar één client toe: zolang de bridge draait, zitten hij en deze integratie elkaars verzoeken in de weg."
+            "description": "Home Assistant heeft nog de entiteiten van de oude Ruby/MQTT-bridge. Stop de bridge voordat je overstapt en schakel hem uit, zodat hij niet opnieuw start. Voer bijvoorbeeld `docker compose down` uit in de map van de bridge, of `systemctl --user disable --now sabik-mqtt.service` als hij als systemd-gebruikersservice draait.\n\nDe seriële Modbus-bus van de unit staat maar één client toe: zolang de bridge draait, zitten hij en deze integratie elkaars verzoeken in de weg."
           },
           "confirm": {
             "title": "Entiteiten overzetten",
@@ -309,7 +309,7 @@
         },
         "error": {
           "bridge_running": "De bridge lijkt nog te draaien: hij heeft de afgelopen 30 seconden zijn status gepubliceerd. Stop hem, wacht een halve minuut en probeer het opnieuw.",
-          "discovery_not_cleared": "MQTT was niet geladen, dus de oude discoverytopics zijn niet gewist. Open deze reparatie opnieuw als de oude entiteiten terugkomen zodra MQTT draait."
+          "discovery_not_cleared": "MQTT was niet geladen, dus de oude discoverytopics zijn niet gewist. Komen de oude Sabik MQTT-entiteiten terug, herstart dan Home Assistant en voer deze reparatie opnieuw uit."
         },
         "abort": {
           "entry_not_loaded": "De Sabik-integratie is niet geladen. Zorg dat hij verbinding heeft met de unit en probeer het opnieuw."

@@ -296,7 +296,7 @@
         "step": {
           "init": {
             "title": "Stop the Sabik MQTT bridge",
-            "description": "Home Assistant still has the entities of the old Ruby/MQTT bridge. Before migrating, stop the bridge (for example `sudo systemctl stop sabik.service`) and keep it from starting again.\n\nThe unit's Modbus serial bus allows only one client: while the bridge runs, it and this integration interfere with each other's requests."
+            "description": "Home Assistant still has the entities of the old Ruby/MQTT bridge. Before migrating, stop the bridge and disable it so it doesn't start again. For example, run `docker compose down` in the bridge folder, or `systemctl --user disable --now sabik-mqtt.service` if it runs as a systemd user service.\n\nThe unit's Modbus serial bus allows only one client: while the bridge runs, it and this integration interfere with each other's requests."
           },
           "confirm": {
             "title": "Migrate the entities",
@@ -309,7 +309,7 @@
         },
         "error": {
           "bridge_running": "The bridge still looks like it is running: it published its status in the last 30 seconds. Stop it, wait half a minute and try again.",
-          "discovery_not_cleared": "MQTT was not loaded, so the old discovery topics were not cleared. If the old entities return once MQTT runs, open this repair again."
+          "discovery_not_cleared": "MQTT was not loaded, so the old discovery topics were not cleared. If the old Sabik MQTT entities come back, restart Home Assistant and run this repair again."
         },
         "abort": {
           "entry_not_loaded": "The Sabik integration is not loaded. Make sure it connects to the unit, then try again."
