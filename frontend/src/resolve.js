@@ -34,3 +34,8 @@ export function pickDevice(hass, config) {
   }
   return devices.length === 1 ? devices[0] : null;
 }
+
+// Rounded like the integration's bypass check, so 16.4 - 11.4 counts as 5.0.
+export function temperatureDifference(extract, outdoor) {
+  return Math.round((extract - outdoor) * 10) / 10;
+}

@@ -28,6 +28,9 @@ function pickDevice(hass, config) {
   }
   return devices.length === 1 ? devices[0] : null;
 }
+function temperatureDifference(extract, outdoor) {
+  return Math.round((extract - outdoor) * 10) / 10;
+}
 
 // src/editor-schema.js
 function editorSchema(hass) {
@@ -300,7 +303,7 @@ var SabikCard = class extends LitElement {
     const currentState = this._state("sensor.bypass_valve_position");
     const outdoorTemp = parseFloat(this._state("sensor.outdoor_air_temperature"));
     const extractTemp = parseFloat(this._state("sensor.extract_air_temperature"));
-    const tempDiff = extractTemp - outdoorTemp;
+    const tempDiff = temperatureDifference(extractTemp, outdoorTemp);
     const minOutdoorTemp = parseFloat(this._state("sensor.min_outdoor_temperature_for_bypass"));
     const minExtractTemp = parseFloat(this._state("sensor.min_extract_temperature_for_bypass"));
     const minTempDiff = parseFloat(this._state("sensor.min_temperature_difference_for_bypass"));

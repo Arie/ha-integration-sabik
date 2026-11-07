@@ -1,7 +1,7 @@
 // Sabik Lovelace card, based on wichers/lovelace-comfoair (MIT license, see LICENSE).
 import { SABIK_BG } from "./background.js";
 import { editorSchema } from "./editor-schema.js";
-import { pickDevice, resolveEntities } from "./resolve.js";
+import { pickDevice, resolveEntities, temperatureDifference } from "./resolve.js";
 
 // Registered up front: the picker does not need Lit, and this way the entry
 // exists even if Lovelace is slow to load.
@@ -296,7 +296,7 @@ class SabikCard extends LitElement {
     const currentState = this._state('sensor.bypass_valve_position');
     const outdoorTemp = parseFloat(this._state('sensor.outdoor_air_temperature'));
     const extractTemp = parseFloat(this._state('sensor.extract_air_temperature'));
-    const tempDiff = extractTemp - outdoorTemp;
+    const tempDiff = temperatureDifference(extractTemp, outdoorTemp);
 
     // Get the actual limits from the Sabik unit with correct sensor names
     const minOutdoorTemp = parseFloat(this._state('sensor.min_outdoor_temperature_for_bypass'));
