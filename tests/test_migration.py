@@ -277,6 +277,56 @@ async def test_migrate_keeps_bridge_device_with_other_entities(
     assert dev_reg.async_get(device.id) is not None
 
 
+async def test_migrate_copies_old_device_area(
+    hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration: SetupFn
+) -> None:
+    seed_old_entities(hass, mqtt_entry)
+    dev_reg = dr.async_get(hass)
+    area = ar.async_get(hass).async_create("Zolder")
+    [old] = dev_reg.async_get_devices(identifiers={("mqtt", "sabik")})
+    dev_reg.async_update_device(old.id, area_id=area.id)
+    entry = await setup_integration()
+
+    await async_migrate(hass, entry)
+
+    [new] = dev_reg.async_get_devices(identifiers={(DOMAIN, entry.entry_id)})
+    assert new.area_id == area.id
+
+
+async def test_migrate_keeps_existing_device_area(
+    hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration: SetupFn
+) -> None:
+    seed_old_entities(hass, mqtt_entry)
+    dev_reg = dr.async_get(hass)
+    area_reg = ar.async_get(hass)
+    old_area = area_reg.async_create("Zolder")
+    own_area = area_reg.async_create("Keuken")
+    [old] = dev_reg.async_get_devices(identifiers={("mqtt", "sabik")})
+    dev_reg.async_update_device(old.id, area_id=old_area.id)
+    entry = await setup_integration()
+    [new] = dev_reg.async_get_devices(identifiers={(DOMAIN, entry.entry_id)})
+    dev_reg.async_update_device(new.id, area_id=own_area.id)
+
+    await async_migrate(hass, entry)
+
+    assert dev_reg.async_get(new.id).area_id == own_area.id
+
+
+async def test_migrate_copies_old_device_name_by_user(
+    hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration: SetupFn
+) -> None:
+    seed_old_entities(hass, mqtt_entry)
+    dev_reg = dr.async_get(hass)
+    [old] = dev_reg.async_get_devices(identifiers={("mqtt", "sabik_ventilation")})
+    dev_reg.async_update_device(old.id, name_by_user="WTW zolder")
+    entry = await setup_integration()
+
+    await async_migrate(hass, entry)
+
+    [new] = dev_reg.async_get_devices(identifiers={(DOMAIN, entry.entry_id)})
+    assert new.name_by_user == "WTW zolder"
+
+
 async def test_migrate_uses_actual_old_entity_id(
     hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration: SetupFn
 ) -> None:

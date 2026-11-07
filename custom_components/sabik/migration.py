@@ -357,6 +357,33 @@ def _is_collision_suffix(old_id: str, new_id: str) -> bool:
 
 
 @callback
+def _async_copy_device_customisations(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Carry the old bridge device's area and user name over to the Sabik device.
+
+    Entities inherit their area from the device, so it must outlive the removal.
+    """
+    dev_reg = dr.async_get(hass)
+    new = dev_reg.async_get_device(identifiers={(DOMAIN, entry.entry_id)})
+    if new is None:
+        return
+    # The "sabik" device wins over "sabik_ventilation".
+    olds = [
+        device
+        for identifier in (("mqtt", "sabik"), ("mqtt", "sabik_ventilation"))
+        if (device := dev_reg.async_get_device(identifiers={identifier}))
+    ]
+    changes: dict[str, str] = {}
+    for attr in ("area_id", "name_by_user"):
+        if getattr(new, attr) is None and (
+            value := next((v for d in olds if (v := getattr(d, attr))), None)
+        ):
+            changes[attr] = value
+    if changes:
+        _LOGGER.debug("Copying old bridge device settings: %s", changes)
+        dev_reg.async_update_device(new.id, **changes)
+
+
+@callback
 def _async_remove_orphan_bridge_devices(hass: HomeAssistant) -> None:
     dev_reg = dr.async_get(hass)
     ent_reg = er.async_get(hass)
@@ -386,6 +413,7 @@ async def async_migrate(hass: HomeAssistant, entry: ConfigEntry) -> MigrationRes
         if current is not None and current.id == old.id:
             ent_reg.async_remove(old.entity_id)
         result.removed.append(old.entity_id)
+    _async_copy_device_customisations(hass, entry)
     _async_remove_orphan_bridge_devices(hass)
     # A late MQTT removal of one of these would delete our renamed entity.
     still_removing = await _async_wait_states_removed(hass, result.removed)
