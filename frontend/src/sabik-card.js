@@ -2,12 +2,24 @@
 import { SABIK_BG } from "./background.js";
 import { pickDevice, resolveEntities } from "./resolve.js";
 
+// Registered up front: the picker does not need Lit, and this way the entry
+// exists even if Lovelace is slow to load.
+window.customCards = window.customCards || [];
+if (!window.customCards.some((c) => c.type === "sabik-card")) {
+  window.customCards.push({
+    type: "sabik-card",
+    name: "Sabik",
+    description: "Control and monitor an S&P Sabik ventilation unit",
+    preview: true
+  });
+}
+
 // Reuse the LitElement that Home Assistant already bundles, so this stays a
-// single self-contained file. A HACS install only downloads sabik-card.js, so
-// the card must not depend on a side-by-side ./lib folder.
-const LitElement = customElements.get("ha-panel-lovelace")
-  ? Object.getPrototypeOf(customElements.get("ha-panel-lovelace"))
-  : Object.getPrototypeOf(customElements.get("hui-view"));
+// single self-contained file with no Lit of its own.
+// As an extra module this runs at page boot, before the lazy Lovelace chunk
+// has defined ha-panel-lovelace, so wait for it before taking its prototype.
+await customElements.whenDefined("ha-panel-lovelace");
+const LitElement = Object.getPrototypeOf(customElements.get("ha-panel-lovelace"));
 const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
@@ -554,14 +566,4 @@ class SabikCard extends LitElement {
 }
 if (!customElements.get("sabik-card")) {
   customElements.define("sabik-card", SabikCard);
-}
-
-window.customCards = window.customCards || [];
-if (!window.customCards.some((c) => c.type === "sabik-card")) {
-  window.customCards.push({
-    type: "sabik-card",
-    name: "Sabik",
-    description: "Control and monitor an S&P Sabik ventilation unit",
-    preview: true
-  });
 }

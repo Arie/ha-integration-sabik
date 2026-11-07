@@ -30,7 +30,17 @@ function pickDevice(hass, config) {
 }
 
 // src/sabik-card.js
-var LitElement = customElements.get("ha-panel-lovelace") ? Object.getPrototypeOf(customElements.get("ha-panel-lovelace")) : Object.getPrototypeOf(customElements.get("hui-view"));
+window.customCards = window.customCards || [];
+if (!window.customCards.some((c) => c.type === "sabik-card")) {
+  window.customCards.push({
+    type: "sabik-card",
+    name: "Sabik",
+    description: "Control and monitor an S&P Sabik ventilation unit",
+    preview: true
+  });
+}
+await customElements.whenDefined("ha-panel-lovelace");
+var LitElement = Object.getPrototypeOf(customElements.get("ha-panel-lovelace"));
 var html = LitElement.prototype.html;
 var css = LitElement.prototype.css;
 var SabikCard = class extends LitElement {
@@ -531,13 +541,4 @@ Outdoor temp too low (${outdoorTemp}\xB0C < ${minOutdoorTemp}\xB0C)`;
 };
 if (!customElements.get("sabik-card")) {
   customElements.define("sabik-card", SabikCard);
-}
-window.customCards = window.customCards || [];
-if (!window.customCards.some((c) => c.type === "sabik-card")) {
-  window.customCards.push({
-    type: "sabik-card",
-    name: "Sabik",
-    description: "Control and monitor an S&P Sabik ventilation unit",
-    preview: true
-  });
 }
