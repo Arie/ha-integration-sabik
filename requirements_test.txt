@@ -1,2 +1,4 @@
 pytest-homeassistant-custom-component==0.13.375
 home-assistant-frontend==20260930.5
+pymodbus==3.13.1
+pyserial>=3.5
