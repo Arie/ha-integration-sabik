@@ -135,3 +135,48 @@ async def test_monitor_stops_on_unload(
     assert await hass.config_entries.async_unload(entry.entry_id)
 
     assert entry.entry_id not in hass.data[DATA_MONITORS]
+
+
+async def test_removing_entry_deletes_issue(
+    hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration
+) -> None:
+    seed_old_entities(hass, mqtt_entry)
+    entry = await setup_integration()
+    assert ir.async_get(hass).async_get_issue(DOMAIN, ISSUE_ID) is not None
+
+    await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, ISSUE_ID) is None
+    assert entry.entry_id not in hass.data[DATA_MONITORS]
+
+
+async def test_removing_other_entry_keeps_issue(
+    hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration
+) -> None:
+    seed_old_entities(hass, mqtt_entry)
+    await setup_integration()
+    other = MockConfigEntry(domain=DOMAIN, title="Sabik 2", data={})
+    other.add_to_hass(hass)
+
+    await hass.config_entries.async_remove(other.entry_id)
+    await hass.async_block_till_done()
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, ISSUE_ID) is not None
+
+
+async def test_monitor_survives_mqtt_reload(
+    hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration, freezer
+) -> None:
+    seed_old_entities(hass, mqtt_entry)
+    entry = await setup_integration()
+
+    assert await hass.config_entries.async_reload(mqtt_entry.entry_id)
+    await hass.async_block_till_done()
+    async_fire_mqtt_message(hass, BRIDGE_STATUS_TOPIC, "{}")
+    await hass.async_block_till_done()
+
+    assert hass.data[DATA_MONITORS][entry.entry_id].bridge_running
+    result = await start_flow(hass)
+    result = await submit(hass, result)
+    assert result["errors"] == {"base": "bridge_running"}

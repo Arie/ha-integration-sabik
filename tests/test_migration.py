@@ -363,27 +363,6 @@ async def test_migrate_twice_is_harmless(
     assert hass.states.get("sensor.sabik_extract_air_temperature") is not None
 
 
-async def test_migrate_skips_taken_target(
-    hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration: SetupFn
-) -> None:
-    seed_old_entities(hass, mqtt_entry)
-    entry = await setup_integration()
-    # A foreign state keeps the old ID busy after the old entry is gone.
-    hass.states.async_set("sensor.sabik_rpm_extract_motor", "1200")
-
-    with patch.object(migration, "REMOVAL_TIMEOUT", 0.05):
-        result = await async_migrate(hass, entry)
-    await hass.async_block_till_done()
-
-    assert result.skipped == [
-        ("sensor.sabik_rpm_extract_motor_2", "sensor.sabik_rpm_extract_motor")
-    ]
-    assert len(result.renamed) == 23
-    reg = er.async_get(hass).async_get("sensor.sabik_rpm_extract_motor_2")
-    assert reg is not None
-    assert reg.platform == DOMAIN
-
-
 async def test_rediscovered_old_entity_is_not_a_rename_target(
     hass: HomeAssistant, mqtt_entry: MockConfigEntry, setup_integration: SetupFn
 ) -> None:
@@ -618,3 +597,28 @@ async def test_migrate_removes_climate_under_its_actual_id(
 
     assert result.removed == ["climate.sabik_ventilation_sabik_ventilation"]
     assert ent_reg.async_get("climate.sabik_ventilation_sabik_ventilation") is None
+
+
+async def test_migrate_skips_ids_still_removing_after_timeout(
+    hass: HomeAssistant,
+    mqtt_entry: MockConfigEntry,
+    setup_integration: SetupFn,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    seed_old_entities(hass, mqtt_entry)
+    entry = await setup_integration()
+    # An old entity that never drops its state: a late MQTT removal could still
+    # delete whatever holds that ID, so it must not become ours.
+    hass.states.async_set("sensor.sabik_rpm_extract_motor", "1200")
+
+    with patch.object(migration, "REMOVAL_TIMEOUT", 0.05):
+        result = await async_migrate(hass, entry)
+    await hass.async_block_till_done()
+
+    assert result.skipped == [
+        ("sensor.sabik_rpm_extract_motor_2", "sensor.sabik_rpm_extract_motor")
+    ]
+    assert len(result.renamed) == 23
+    assert "still being removed" in caplog.text
+    assert "Cannot rename" not in caplog.text
+    assert er.async_get(hass).async_get("sensor.sabik_rpm_extract_motor_2") is not None

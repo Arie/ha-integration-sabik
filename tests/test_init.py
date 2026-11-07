@@ -55,3 +55,17 @@ async def test_client_closed_if_platform_setup_fails(
 
     assert entry.state is ConfigEntryState.SETUP_ERROR
     assert fake_client.closed
+
+
+async def test_failed_migration_check_does_not_break_setup(
+    hass: HomeAssistant, setup_integration, fake_client, caplog
+) -> None:
+    with patch(
+        "custom_components.sabik.async_check_migration",
+        side_effect=RuntimeError("boom"),
+    ):
+        entry = await setup_integration()
+
+    assert entry.state is ConfigEntryState.LOADED
+    assert not fake_client.closed
+    assert "Could not check for the Sabik MQTT bridge" in caplog.text

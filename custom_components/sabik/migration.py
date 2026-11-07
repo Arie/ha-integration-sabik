@@ -129,8 +129,10 @@ class BridgeActivityMonitor:
         self.last_seen: datetime | None = None
 
     async def async_start(self) -> None:
+        """Subscribe, replacing any earlier subscription; last_seen is kept."""
         from homeassistant.components import mqtt  # noqa: PLC0415
 
+        self.async_stop()
         self._unsubscribe = await mqtt.async_subscribe(
             self._hass, BRIDGE_STATUS_TOPIC, self._async_message_received
         )
@@ -141,9 +143,14 @@ class BridgeActivityMonitor:
 
     @callback
     def async_stop(self) -> None:
-        if self._unsubscribe is not None:
-            self._unsubscribe()
-            self._unsubscribe = None
+        unsubscribe, self._unsubscribe = self._unsubscribe, None
+        if unsubscribe is None:
+            return
+        try:
+            unsubscribe()
+        except HomeAssistantError:
+            # The MQTT client it belonged to is gone after a reload.
+            pass
 
     @property
     def bridge_running(self) -> bool:
@@ -194,11 +201,14 @@ def async_stop_monitor(hass: HomeAssistant, entry_id: str) -> None:
         monitor.async_stop()
 
 
-async def _async_start_monitor(hass: HomeAssistant, entry_id: str) -> None:
+async def _async_start_monitor(
+    hass: HomeAssistant, entry_id: str, resubscribe: bool
+) -> None:
     monitors = hass.data.setdefault(DATA_MONITORS, {})
-    if entry_id in monitors or not _mqtt_loaded(hass):
+    existing = monitors.get(entry_id)
+    if (existing is not None and not resubscribe) or not _mqtt_loaded(hass):
         return
-    monitor = BridgeActivityMonitor(hass)
+    monitor = existing or BridgeActivityMonitor(hass)
     try:
         await monitor.async_start()
     except HomeAssistantError as err:
@@ -213,8 +223,14 @@ def async_clear_issue(hass: HomeAssistant, entry_id: str) -> None:
     async_stop_monitor(hass, entry_id)
 
 
-async def async_check_migration(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Raise the migration issue while bridge entities remain and MQTT is configured."""
+async def async_check_migration(
+    hass: HomeAssistant, entry: ConfigEntry, *, resubscribe: bool = False
+) -> None:
+    """Raise the migration issue while bridge entities remain and MQTT is configured.
+
+    resubscribe: MQTT was (re)loaded, so an existing bridge monitor's
+    subscription belongs to a client that no longer exists.
+    """
     if not hass.config_entries.async_entries(MQTT_DOMAIN) or not find_old_entities(
         hass
     ):
@@ -230,7 +246,7 @@ async def async_check_migration(hass: HomeAssistant, entry: ConfigEntry) -> None
         translation_key=ISSUE_ID,
         data={"entry_id": entry.entry_id},
     )
-    await _async_start_monitor(hass, entry.entry_id)
+    await _async_start_monitor(hass, entry.entry_id, resubscribe)
 
 
 async def _async_clear_discovery(hass: HomeAssistant) -> bool:
@@ -249,15 +265,15 @@ async def _async_clear_discovery(hass: HomeAssistant) -> bool:
 
 async def _async_wait_states_removed(
     hass: HomeAssistant, entity_ids: list[str]
-) -> None:
-    """Wait until removed entities have dropped their state, or time out.
+) -> set[str]:
+    """Wait until removed entities have dropped their state; return those that didn't.
 
     A live MQTT entity removes itself in a task after its registry entry goes;
     renaming onto its ID before then would fail or race with that removal.
     """
     pending = {entity_id for entity_id in entity_ids if hass.states.get(entity_id)}
     if not pending:
-        return
+        return pending
     done = asyncio.Event()
 
     @callback
@@ -272,9 +288,13 @@ async def _async_wait_states_removed(
         async with asyncio.timeout(REMOVAL_TIMEOUT):
             await done.wait()
     except TimeoutError:
-        _LOGGER.warning("Old Sabik entities still have a state: %s", sorted(pending))
+        _LOGGER.warning(
+            "Old Sabik entities are still being removed, not taking over: %s",
+            sorted(pending),
+        )
     finally:
         unsubscribe()
+    return pending
 
 
 def _user_customisations(old: er.RegistryEntry) -> dict[str, Any]:
@@ -367,7 +387,8 @@ async def async_migrate(hass: HomeAssistant, entry: ConfigEntry) -> MigrationRes
             ent_reg.async_remove(old.entity_id)
         result.removed.append(old.entity_id)
     _async_remove_orphan_bridge_devices(hass)
-    await _async_wait_states_removed(hass, result.removed)
+    # A late MQTT removal of one of these would delete our renamed entity.
+    still_removing = await _async_wait_states_removed(hass, result.removed)
 
     for old in old_entries:
         if (target := OLD_UNIQUE_IDS[old.unique_id]) is None:
@@ -378,6 +399,9 @@ async def async_migrate(hass: HomeAssistant, entry: ConfigEntry) -> MigrationRes
             _LOGGER.warning("No Sabik entity to take over %s", old.entity_id)
             continue
         if new_id == old.entity_id or _is_collision_suffix(old.entity_id, new_id):
+            continue
+        if old.entity_id in still_removing:
+            result.skipped.append((new_id, old.entity_id))
             continue
         new = ent_reg.entities[new_id]
         try:
