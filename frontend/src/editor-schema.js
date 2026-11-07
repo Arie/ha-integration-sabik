@@ -19,3 +19,11 @@ export function editorSchema(hass) {
     },
   ];
 }
+
+// Which room readings the card's first middle-column line shows.
+export function roomReadingParts(config) {
+  return {
+    temperature: Boolean(config?.room_temperature_entity),
+    humidity: Boolean(config?.room_humidity_entity),
+  };
+}

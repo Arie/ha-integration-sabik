@@ -51,6 +51,12 @@ function editorSchema(hass) {
     }
   ];
 }
+function roomReadingParts(config) {
+  return {
+    temperature: Boolean(config?.room_temperature_entity),
+    humidity: Boolean(config?.room_humidity_entity)
+  };
+}
 
 // src/sabik-card.js
 window.customCards = window.customCards || [];
@@ -210,8 +216,10 @@ var SabikCard = class extends LitElement {
                   <div class="fan-state"><ha-icon icon="mdi:speedometer"></ha-icon> ${this._int("sensor.rpm_extract_motor")} rpm</div>
               </div>
               <div class="flex-col-main">
-                  ${this.config.room_temperature_entity ? html`<div>${this._roomTemp()}°C</div>` : ""}
-                  ${this.config.room_humidity_entity ? html`<div><ha-icon icon="mdi:water-percent"></ha-icon>${this._roomHumidity()}%</div>` : ""}
+                  ${(() => {
+      const room = roomReadingParts(this.config);
+      return room.temperature || room.humidity ? html`<div>${room.temperature ? html`${this._roomTemp()}°C` : ""}${room.temperature && room.humidity ? " " : ""}${room.humidity ? html`<ha-icon icon="mdi:water-percent"></ha-icon>${this._roomHumidity()}%` : ""}</div>` : "";
+    })()}
                   <div>
                     <span class="fan-picker">
                       <ha-icon
