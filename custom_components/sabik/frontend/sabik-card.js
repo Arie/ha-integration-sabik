@@ -29,6 +29,26 @@ function pickDevice(hass, config) {
   return devices.length === 1 ? devices[0] : null;
 }
 
+// src/editor-schema.js
+function editorSchema(hass) {
+  return [
+    {
+      name: "device_id",
+      // With a single unit the card finds it by itself.
+      required: findSabikDevices(hass).length > 1,
+      selector: { device: { integration: "sabik" } }
+    },
+    {
+      name: "room_temperature_entity",
+      selector: { entity: { filter: { domain: "sensor", device_class: "temperature" } } }
+    },
+    {
+      name: "room_humidity_entity",
+      selector: { entity: { filter: { domain: "sensor", device_class: "humidity" } } }
+    }
+  ];
+}
+
 // src/sabik-card.js
 window.customCards = window.customCards || [];
 if (!window.customCards.some((c) => c.type === "sabik-card")) {
@@ -116,6 +136,10 @@ var SabikCard = class extends LitElement {
     const obj = this.hass.states[this.config.room_temperature_entity];
     return !obj || obj.state === "unavailable" || obj.state === "unknown" ? "-" : obj.state;
   }
+  _roomHumidity() {
+    const obj = this.hass.states[this.config.room_humidity_entity];
+    return !obj || obj.state === "unavailable" || obj.state === "unknown" ? "-" : obj.state;
+  }
   _call(domain, service, key, data = {}) {
     const entityId = this._entityId(key);
     if (!entityId) {
@@ -184,6 +208,7 @@ var SabikCard = class extends LitElement {
               </div>
               <div class="flex-col-main">
                   ${this.config.room_temperature_entity ? html`<div>${this._roomTemp()}°C</div>` : ""}
+                  ${this.config.room_humidity_entity ? html`<div><ha-icon icon="mdi:water-percent"></ha-icon>${this._roomHumidity()}%</div>` : ""}
                   <div>
                     <span class="fan-picker">
                       <ha-icon
@@ -347,6 +372,9 @@ Outdoor temp too low (${outdoorTemp}\xB0C < ${minOutdoorTemp}\xB0C)`;
   // distribute all cards over the available columns.
   getCardSize() {
     return 7;
+  }
+  static getConfigElement() {
+    return document.createElement("sabik-card-editor");
   }
   static getStubConfig() {
     return {};
@@ -541,4 +569,46 @@ Outdoor temp too low (${outdoorTemp}\xB0C < ${minOutdoorTemp}\xB0C)`;
 };
 if (!customElements.get("sabik-card")) {
   customElements.define("sabik-card", SabikCard);
+}
+var EDITOR_LABELS = {
+  device_id: "Device",
+  room_temperature_entity: "Room temperature sensor",
+  room_humidity_entity: "Room humidity sensor"
+};
+var SabikCardEditor = class extends LitElement {
+  static get properties() {
+    return { hass: {}, _config: { state: true } };
+  }
+  setConfig(config) {
+    this._config = config;
+  }
+  _valueChanged(ev) {
+    const config = {};
+    for (const [key, value] of Object.entries(ev.detail.value)) {
+      if (value !== "" && value !== void 0 && value !== null) {
+        config[key] = value;
+      }
+    }
+    this.dispatchEvent(new CustomEvent("config-changed", {
+      detail: { config },
+      bubbles: true,
+      composed: true
+    }));
+  }
+  render() {
+    if (!this.hass || !this._config) {
+      return html``;
+    }
+    return html`
+      <ha-form
+        .hass=${this.hass}
+        .data=${this._config}
+        .schema=${editorSchema(this.hass)}
+        .computeLabel=${(field) => EDITOR_LABELS[field.name] || field.name}
+        @value-changed=${this._valueChanged}>
+      </ha-form>`;
+  }
+};
+if (!customElements.get("sabik-card-editor")) {
+  customElements.define("sabik-card-editor", SabikCardEditor);
 }

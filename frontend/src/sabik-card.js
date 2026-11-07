@@ -1,5 +1,6 @@
 // Sabik Lovelace card, based on wichers/lovelace-comfoair (MIT license, see LICENSE).
 import { SABIK_BG } from "./background.js";
+import { editorSchema } from "./editor-schema.js";
 import { pickDevice, resolveEntities } from "./resolve.js";
 
 // Registered up front: the picker does not need Lit, and this way the entry
@@ -111,6 +112,11 @@ class SabikCard extends LitElement {
     return !obj || obj.state === 'unavailable' || obj.state === 'unknown' ? '-' : obj.state;
   }
 
+  _roomHumidity() {
+    const obj = this.hass.states[this.config.room_humidity_entity];
+    return !obj || obj.state === 'unavailable' || obj.state === 'unknown' ? '-' : obj.state;
+  }
+
   _call(domain, service, key, data = {}) {
     const entityId = this._entityId(key);
     if (!entityId) {
@@ -195,6 +201,7 @@ class SabikCard extends LitElement {
               </div>
               <div class="flex-col-main">
                   ${this.config.room_temperature_entity ? html`<div>${this._roomTemp()}°C</div>` : ''}
+                  ${this.config.room_humidity_entity ? html`<div><ha-icon icon="mdi:water-percent"></ha-icon>${this._roomHumidity()}%</div>` : ''}
                   <div>
                     <span class="fan-picker">
                       <ha-icon
@@ -370,6 +377,10 @@ class SabikCard extends LitElement {
   // distribute all cards over the available columns.
   getCardSize() {
     return 7;
+  }
+
+  static getConfigElement() {
+    return document.createElement("sabik-card-editor");
   }
 
   static getStubConfig() {
@@ -566,4 +577,52 @@ class SabikCard extends LitElement {
 }
 if (!customElements.get("sabik-card")) {
   customElements.define("sabik-card", SabikCard);
+}
+
+const EDITOR_LABELS = {
+  device_id: "Device",
+  room_temperature_entity: "Room temperature sensor",
+  room_humidity_entity: "Room humidity sensor"
+};
+
+class SabikCardEditor extends LitElement {
+  static get properties() {
+    return { hass: {}, _config: { state: true } };
+  }
+
+  setConfig(config) {
+    this._config = config;
+  }
+
+  _valueChanged(ev) {
+    // A cleared field arrives as "" or undefined; drop the key instead.
+    const config = {};
+    for (const [key, value] of Object.entries(ev.detail.value)) {
+      if (value !== "" && value !== undefined && value !== null) {
+        config[key] = value;
+      }
+    }
+    this.dispatchEvent(new CustomEvent("config-changed", {
+      detail: { config },
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  render() {
+    if (!this.hass || !this._config) {
+      return html``;
+    }
+    return html`
+      <ha-form
+        .hass=${this.hass}
+        .data=${this._config}
+        .schema=${editorSchema(this.hass)}
+        .computeLabel=${(field) => EDITOR_LABELS[field.name] || field.name}
+        @value-changed=${this._valueChanged}>
+      </ha-form>`;
+  }
+}
+if (!customElements.get("sabik-card-editor")) {
+  customElements.define("sabik-card-editor", SabikCardEditor);
 }

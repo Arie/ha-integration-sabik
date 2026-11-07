@@ -35,5 +35,10 @@ test("card waits for ha-panel-lovelace before defining", async () => {
   await loading;
 
   assert.ok(defined.has("sabik-card"));
+  assert.ok(defined.has("sabik-card-editor"));
+  assert.equal(
+    defined.get("sabik-card").getConfigElement.name,
+    "getConfigElement"
+  );
   assert.equal(window.customCards.length, 1);
 });
