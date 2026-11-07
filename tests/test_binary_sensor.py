@@ -26,7 +26,7 @@ async def test_entity_ids_match_bridge(
 async def test_boost_status_true_state(
     hass: HomeAssistant, setup_integration, fake_client
 ) -> None:
-    fake_client.di[29] = False  # register doc: 0 = boost active
+    fake_client.di[29] = True  # observed on the unit: 1 = boost active
     await setup_integration()
 
     assert hass.states.get("binary_sensor.sabik_boost_status").state == "on"

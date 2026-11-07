@@ -18,7 +18,7 @@ def raw_fixture() -> RawRegisters:
         target = getattr(raw, block.kind)
         for addr in range(block.address, block.address + block.count):
             target[addr] = False if block.kind in ("di", "coil") else 0
-    raw.di[29] = True
+    raw.di[29] = False
     raw.hr[48], raw.hr[49], raw.hr[50] = 1, 1, 2026
     return raw
 
@@ -94,9 +94,9 @@ def test_fan_speed_unknown_is_none():
 
 def test_boost_polarity():
     raw = raw_fixture()
-    raw.di[29] = False
-    assert decode(raw).boost_active is True
     raw.di[29] = True
+    assert decode(raw).boost_active is True
+    raw.di[29] = False
     assert decode(raw).boost_active is False
 
 

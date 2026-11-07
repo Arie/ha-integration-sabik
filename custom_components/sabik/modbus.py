@@ -131,6 +131,10 @@ class SabikClient:
                 values = (
                     response.bits if block.kind in ("di", "coil") else response.registers
                 )[: block.count]
+                if len(values) < block.count:
+                    # A late reply to an earlier request; reconnect for a clean buffer.
+                    self._drop()
+                    raise SabikModbusError("Unexpected response from the unit")
                 getattr(raw, block.kind).update(
                     zip(range(block.address, block.address + block.count), values)
                 )

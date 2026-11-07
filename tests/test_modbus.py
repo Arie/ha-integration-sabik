@@ -120,6 +120,20 @@ async def test_server_down_raises_then_recovers(server, client):
     assert raw.ir[25] == 215
 
 
+async def test_short_response_rejected_and_client_rebuilt(client):
+    await client.async_read(READ_PLAN)
+    first = client._client
+    short = MagicMock(bits=[], registers=[])
+    short.isError.return_value = False
+    with patch.object(first, "read_discrete_inputs", AsyncMock(return_value=short)):
+        with pytest.raises(SabikModbusError, match="Unexpected response"):
+            await client.async_read(READ_PLAN)
+    assert client._client is None
+    raw = await client.async_read(READ_PLAN)
+    assert client._client is not first
+    assert raw.ir[25] == 215
+
+
 async def test_serial_settings():
     fake = MagicMock()
     fake.connected = False

@@ -38,6 +38,7 @@ COIL_BOOST = 16
 COIL_SNOOZE = 17
 COIL_WORK_MODE_AUTO = 25
 
+# The unit applies FC16 writes but never replies; write the clock as six FC6 writes.
 HR_CLOCK = 48
 HR_BYPASS_TIMER = 56
 HR_MIN_ODA = 63
@@ -45,9 +46,10 @@ HR_MIN_ETA = 65
 HR_MIN_ETA_ODA = 67
 HR_AIR_VOLUME = 132
 
-# Hardware-dependent: confirmed or flipped during the live check.
-BOOST_ACTIVE_WHEN_DI29_IS: bool = False  # register doc: 0 = boost active
-VOLTAGE_SCALE: float = 0.1  # register doc: dV
+# Hardware-dependent, checked on the real unit.
+# Observed: DI 29 = 1 while boost is active; this contradicts the register doc.
+BOOST_ACTIVE_WHEN_DI29_IS: bool = True
+VOLTAGE_SCALE: float = 0.1  # dV, confirmed on the unit
 
 WORK_MODES: dict[int, str] = dict(
     enumerate(

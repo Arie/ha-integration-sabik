@@ -27,7 +27,7 @@ class FakeSabikClient:
             store = getattr(self, block.kind)
             for addr in range(block.address, block.address + block.count):
                 store[addr] = False if block.kind in ("di", "coil") else 0
-        self.di[29] = True  # boost not active
+        self.di[29] = False  # boost not active
         self.ir.update(_IR)
         self.hr.update(_HR)
         self.writes: list[tuple[str, int, Any]] = []
